@@ -75,7 +75,7 @@ impl<B: AutodiffBackend> TrainStep<DailyLinearBatch<B>, ClassificationOutput<B>>
     }
 }
 
-impl<B: AutodiffBackend> ValidStep<DailyLinearBatch<B>, ClassificationOutput<B>> for Model<B> {
+impl<B: Backend> ValidStep<DailyLinearBatch<B>, ClassificationOutput<B>> for Model<B> {
     fn step(&self, item: DailyLinearBatch<B>) -> ClassificationOutput<B> {
         self.forward_step(item)
     }
