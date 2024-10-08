@@ -1,6 +1,9 @@
 use burn::{
     module::Module,
-    nn::{loss::BinaryCrossEntropyLossConfig, Linear, LinearConfig, Relu, Sigmoid, Tanh},
+    nn::{
+        loss::{BinaryCrossEntropyLossConfig, CrossEntropyLossConfig},
+        Linear, LinearConfig, Relu, Sigmoid, Tanh,
+    },
     prelude::Backend,
     tensor::{backend::AutodiffBackend, Tensor},
     train::{ClassificationOutput, TrainOutput, TrainStep, ValidStep},
@@ -9,7 +12,7 @@ use burn::{
 use crate::dataset::DailyLinearBatch;
 
 const INPUT_SIZE: usize = 25;
-const HIDDEN_SIZE: usize = 64;
+const HIDDEN_SIZE: usize = 128;
 const OUTPUT_SIZE: usize = 2;
 
 #[derive(Module, Debug)]
@@ -54,10 +57,10 @@ impl<B: Backend> Model<B> {
     pub fn forward_step(&self, item: DailyLinearBatch<B>) -> ClassificationOutput<B> {
         let targets = item.targets;
         let output = self.forward(item.inputs);
-        let loss = BinaryCrossEntropyLossConfig::new()
+        let loss = CrossEntropyLossConfig::new()
             .with_logits(true)
             .init(&output.device())
-            .forward(output.clone(), targets.clone().unsqueeze_dim(1)); // bce loss requires targets to be of shape
+            .forward(output.clone(), targets.clone()); // bce loss requires targets to be of shape
 
         ClassificationOutput {
             loss,

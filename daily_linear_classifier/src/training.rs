@@ -26,7 +26,7 @@ pub struct DailyLinearTrainingConfig {
     #[config(default = 10)]
     pub num_epochs: usize,
 
-    #[config(default = 64)]
+    #[config(default = 256)]
     pub batch_size: usize,
 
     #[config(default = 4)]
@@ -84,12 +84,12 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
             Aggregate::Mean,
             Direction::Lowest,
             Split::Valid,
-            StoppingCondition::NoImprovementSince { n_epochs: 1 },
+            StoppingCondition::NoImprovementSince { n_epochs: 2 },
         ))
         .devices(vec![device.clone()])
         .num_epochs(config.num_epochs)
         .summary()
-        .build(Model::<B>::new(&device), config.optimizer.init(), 1e-4);
+        .build(Model::<B>::new(&device), config.optimizer.init(), 1e-3);
 
     let model_trained = learner.fit(dataloader_train, dataloader_valid);
 
