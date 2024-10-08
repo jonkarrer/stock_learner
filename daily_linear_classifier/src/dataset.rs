@@ -89,7 +89,7 @@ pub struct DailyLinearBatcher<B: Backend> {
 #[derive(Clone, Debug)]
 pub struct DailyLinearBatch<B: Backend> {
     pub inputs: Tensor<B, 2>,
-    pub targets: Tensor<B, 1>,
+    pub targets: Tensor<B, 1, Int>,
 }
 
 impl<B: Backend> DailyLinearBatcher<B> {
@@ -170,7 +170,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         // ]
         let targets = items
             .iter()
-            .map(|item| Tensor::<B, 1>::from_floats([item.label as f32], &self.device))
+            .map(|item| Tensor::<B, 1, Int>::from_ints([item.label], &self.device))
             .collect();
 
         // do not need to unsqueeze here, just concat for a 1D tensor
@@ -183,6 +183,10 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
 
 #[cfg(test)]
 mod tests {
+    use burn::tensor::Device;
+
+    use crate::device::{get_device, MyBackend};
+
     use super::*;
 
     #[test]
@@ -192,5 +196,18 @@ mod tests {
 
         assert_eq!(train.dataset.len(), 759839);
         assert_eq!(valid.dataset.len(), 219260);
+    }
+
+    #[test]
+    fn test_batcher() {
+        let device = get_device();
+        let train = DailyLinearDataset::train();
+        let batcher: DailyLinearBatcher<MyBackend> = DailyLinearBatcher::new(device);
+
+        let items: Vec<DailyLinearItem> = train.dataset.iter().take(3).collect();
+
+        let batch = batcher.batch(items);
+        dbg!(batch.targets.unsqueeze_dim::<2>(1).into_data());
+        assert!(false)
     }
 }
