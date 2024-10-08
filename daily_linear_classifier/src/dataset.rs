@@ -69,8 +69,6 @@ impl DailyLinearDataset {
             _ => panic!("Invalid split type"),
         };
 
-        dbg!(split);
-
         let dataset = SqliteDataset::from_db_file(
             "/Volumes/karrer_ssd/datastores/sqlite/market_data/stocks.db",
             &split,
