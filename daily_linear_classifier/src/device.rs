@@ -1,3 +1,5 @@
+#![allow(dead_code)]
+
 use burn::backend::{wgpu::WgpuDevice, Autodiff, Wgpu};
 
 pub type MyDevice = Wgpu<f32, i32>;

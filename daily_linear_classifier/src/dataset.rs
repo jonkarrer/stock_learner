@@ -181,11 +181,8 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
 
 #[cfg(test)]
 mod tests {
-    use burn::tensor::Device;
-
-    use crate::device::{get_device, MyBackend};
-
     use super::*;
+    use crate::device::{get_device, MyBackend};
 
     #[test]
     fn test_dataset() {

@@ -1,9 +1,6 @@
 use burn::{
     module::Module,
-    nn::{
-        loss::{BinaryCrossEntropyLossConfig, CrossEntropyLossConfig},
-        Linear, LinearConfig, Relu, Sigmoid, Tanh,
-    },
+    nn::{loss::CrossEntropyLossConfig, Linear, LinearConfig, Relu},
     prelude::Backend,
     tensor::{backend::AutodiffBackend, Tensor},
     train::{ClassificationOutput, TrainOutput, TrainStep, ValidStep},
