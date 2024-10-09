@@ -1,6 +1,7 @@
 use burn::{
     config::Config,
     data::dataloader::DataLoaderBuilder,
+    grad_clipping::GradientClippingConfig,
     module::Module,
     optim::{decay::WeightDecayConfig, AdamConfig},
     record::{CompactRecorder, NoStdTrainingRecorder},
@@ -26,7 +27,7 @@ pub struct DailyLinearTrainingConfig {
     #[config(default = 10)]
     pub num_epochs: usize,
 
-    #[config(default = 256)]
+    #[config(default = 512)]
     pub batch_size: usize,
 
     #[config(default = 4)]
@@ -48,7 +49,9 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
     create_artifact_dir(ARTIFACTS_DIR);
 
     // Config
-    let optimizer_config = AdamConfig::new().with_weight_decay(Some(WeightDecayConfig::new(5e-4)));
+    let optimizer_config = AdamConfig::new()
+        .with_weight_decay(Some(WeightDecayConfig::new(5e-5)))
+        .with_grad_clipping(Some(GradientClippingConfig::Norm(1.0)));
     let config = DailyLinearTrainingConfig::new(optimizer_config);
     B::seed(config.seed);
 

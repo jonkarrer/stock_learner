@@ -9,14 +9,13 @@ use burn::{
 use crate::dataset::DailyLinearBatch;
 
 const INPUT_SIZE: usize = 25;
-const HIDDEN_SIZE: usize = 256;
+const HIDDEN_SIZE: usize = 512;
 const OUTPUT_SIZE: usize = 2;
 
 #[derive(Module, Debug)]
 pub struct Model<B: Backend> {
     input_layer: Linear<B>,
     ln1: Linear<B>,
-    ln2: Linear<B>,
     output_layer: Linear<B>,
     dropout: Dropout,
     activation: Relu,
@@ -34,12 +33,11 @@ impl<B: Backend> Model<B> {
         let input_layer = LinearConfig::new(INPUT_SIZE, HIDDEN_SIZE)
             .with_bias(true)
             .init(device);
+
         let ln1 = LinearConfig::new(HIDDEN_SIZE, HIDDEN_SIZE)
             .with_bias(true)
             .init(device);
-        let ln2 = LinearConfig::new(HIDDEN_SIZE, HIDDEN_SIZE)
-            .with_bias(true)
-            .init(device);
+
         let dropout = DropoutConfig::new(0.5).init();
         let output_layer = LinearConfig::new(HIDDEN_SIZE, OUTPUT_SIZE)
             .with_bias(true)
@@ -50,7 +48,6 @@ impl<B: Backend> Model<B> {
         Self {
             input_layer,
             ln1,
-            ln2,
             output_layer,
             dropout,
             activation,
@@ -61,13 +58,8 @@ impl<B: Backend> Model<B> {
         let x = input.detach();
         let x = self.input_layer.forward(x);
         let x = self.activation.forward(x);
-        let x = self.dropout.forward(x);
 
         let x = self.ln1.forward(x);
-        let x = self.activation.forward(x);
-        let x = self.dropout.forward(x);
-
-        let x = self.ln2.forward(x);
         let x = self.activation.forward(x);
         let x = self.dropout.forward(x);
 

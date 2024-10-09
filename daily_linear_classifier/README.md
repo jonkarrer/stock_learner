@@ -90,6 +90,7 @@ Linear classifiers are usually the starting point for classification tasks on ta
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-4 |
+| weight_decay | 5e-5 |
 | batch_size | 64 |
 | num_workers | 4 |
 | seed | 42 |
@@ -121,6 +122,7 @@ Early stop... no improvement.
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-3 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -163,6 +165,7 @@ Total Epochs: 5
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -211,6 +214,7 @@ tried taking the log of the volume column and removing the min max norm. Spoiler
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -259,6 +263,7 @@ tried taking the log of the volume column and removing the min max norm. Spoiler
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -307,6 +312,7 @@ Going to add a dropout layer.
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -356,6 +362,7 @@ Added 2 more hidden layers.
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -407,6 +414,7 @@ Taking out the bias.
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -457,6 +465,7 @@ Seems I am stuck at a loss of 0.693. My learning rate or initialization probably
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 5e-1 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -508,6 +517,7 @@ The learning rate increase was fine, still only getting my losst to around 0.7. 
 |-----------------|-------|
 | epochs | 10 |
 | learning_rate | 5e-1 |
+| weight_decay | 5e-5 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -515,10 +525,134 @@ The learning rate increase was fine, still only getting my losst to around 0.7. 
 | loss | CrossEntropyLoss |
 | optimizer | Adam |
 | input_size | 25 |
-| hidden_layers | 3 |
+| hidden_layers | 7 |
 | hidden_layer_size | 256 |
 | output_size | 2 |
 | hidden_layer_activation | Relu |
 | output_activation | with logits |
 | shuffle_batch | true |
 | bias | true |
+
+- Results
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Accuracy   | 51.278   | 2        | 51.310   | 3        |
+| Train | CPU Usage  | 60.536   | 1        | 61.883   | 2        |
+| Train | CPU Memory | 19.877   | 3        | 20.124   | 2        |
+| Train | Loss       | 0.694    | 2        | 0.698    | 1        |
+| Valid | Accuracy   | 48.584   | 1        | 51.416   | 3        |
+| Valid | CPU Usage  | 54.317   | 2        | 57.741   | 3        |
+| Valid | CPU Memory | 19.761   | 3        | 20.103   | 1        |
+| Valid | Loss       | 0.694    | 1        | 0.756    | 2        |
+
+### Run 11
+
+- Notes
+
+Not budging. Going to take out the shuffle and add 2 more workers, and slow wieght decay.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 5e-2 |
+| weight_decay | 2e-5 |
+| batch_size | 256 |
+| num_workers | 6 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 7 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | false |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  ln1: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln2: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln3: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln4: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln5: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln6: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 401922
+}
+Total Epochs: 5
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Accuracy   | 51.259   | 5        | 51.362   | 1        |
+| Train | CPU Memory | 19.808   | 3        | 20.172   | 4        |
+| Train | CPU Usage  | 74.068   | 1        | 77.307   | 4        |
+| Train | Loss       | 0.693    | 5        | 0.721    | 1        |
+| Valid | Accuracy   | 51.416   | 1        | 51.416   | 5        |
+| Valid | CPU Memory | 19.788   | 2        | 20.195   | 4        |
+| Valid | CPU Usage  | 72.220   | 4        | 78.686   | 3        |
+| Valid | Loss       | 0.693    | 3        | 0.693    | 1        |
+
+### Run 12
+
+- Notes
+
+Last run. Going to add gradient clipping, and reduce the number of layers. Trying to combat maybe a vanishing gradient problem.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-2 |
+| weight_decay | 5e-5 |
+| batch_size | 512 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | SGD |
+| input_size | 25 |
+| hidden_layers | 2 |
+| hidden_layer_size | 512 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 512, bias: true, params: 13312}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 276994
+}
+Total Epochs: 5
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Usage  | 49.157   | 1        | 51.136   | 4        |
+| Train | Accuracy   | 51.389   | 5        | 51.486   | 2        |
+| Train | CPU Memory | 20.042   | 4        | 20.456   | 3        |
+| Train | Loss       | 0.693    | 3        | 0.705    | 1        |
+| Valid | CPU Usage  | 48.439   | 2        | 51.192   | 3        |
+| Valid | Accuracy   | 51.416   | 1        | 51.416   | 5        |
+| Valid | CPU Memory | 19.971   | 4        | 20.622   | 3        |
+| Valid | Loss       | 0.696    | 3        | 0.701    | 2        |
+
+## Conclusion
+
+Still not moving the needle. This was expected, as predicting stocks is hard. I may need to revisist my data, but a simple model like this was expected to not be very accurate.
