@@ -8,7 +8,7 @@ use burn::{
     train::{
         metric::{
             store::{Aggregate, Direction, Split},
-            AccuracyMetric, CpuMemory, CpuTemperature, CpuUse, LossMetric,
+            AccuracyMetric, CpuMemory, CpuUse, LossMetric,
         },
         LearnerBuilder, MetricEarlyStoppingStrategy, StoppingCondition,
     },
@@ -48,7 +48,7 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
     create_artifact_dir(ARTIFACTS_DIR);
 
     // Config
-    let optimizer_config = AdamConfig::new().with_weight_decay(Some(WeightDecayConfig::new(5e-5)));
+    let optimizer_config = AdamConfig::new().with_weight_decay(Some(WeightDecayConfig::new(5e-4)));
     let config = DailyLinearTrainingConfig::new(optimizer_config);
     B::seed(config.seed);
 
@@ -75,8 +75,6 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
         .metric_valid_numeric(CpuUse::new())
         .metric_train_numeric(CpuMemory::new())
         .metric_valid_numeric(CpuMemory::new())
-        .metric_train_numeric(CpuTemperature::new())
-        .metric_valid_numeric(CpuTemperature::new())
         .metric_train_numeric(LossMetric::new())
         .metric_valid_numeric(LossMetric::new())
         .with_file_checkpointer(CompactRecorder::new())
@@ -89,7 +87,7 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
         .devices(vec![device.clone()])
         .num_epochs(config.num_epochs)
         .summary()
-        .build(Model::<B>::new(&device), config.optimizer.init(), 1e-3);
+        .build(Model::<B>::new(&device), config.optimizer.init(), 5e-2);
 
     let model_trained = learner.fit(dataloader_train, dataloader_valid);
 

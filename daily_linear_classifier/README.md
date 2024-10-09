@@ -103,6 +103,7 @@ Linear classifiers are usually the starting point for classification tasks on ta
 | hidden_layer_activation | Relu |
 | output_activation | with logits |
 | shuffle_batch | true |
+| bias | true |
 
 - Results
 
@@ -119,7 +120,7 @@ Early stop... no improvement.
 | Hyperparameters | Value |
 |-----------------|-------|
 | epochs | 10 |
-| learning_rate | 1e-5 |
+| learning_rate | 1e-3 |
 | batch_size | 256 |
 | num_workers | 4 |
 | seed | 42 |
@@ -133,5 +134,391 @@ Early stop... no improvement.
 | hidden_layer_activation | Relu |
 | output_activation | with logits |
 | shuffle_batch | true |
+| bias | true |
 
 - Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 128, bias: true, params: 3328}
+  output_layer: Linear {d_input: 128, d_output: 2, bias: true, params: 258}
+  activation: Relu
+  params: 3586
+}
+Total Epochs: 5
+
+| Split | Metric          | Min.     | Epoch    | Max.     | Epoch    |
+|-------|-----------------|----------|----------|----------|----------|
+| Train | CPU Usage       | 52.270   | 3        | 56.542   | 1        |
+| Train | CPU Memory      | 19.332   | 5        | 19.482   | 2        |
+| Train | Loss            | 0.692    | 5        | 0.692    | 1        |
+| Train | Accuracy        | 51.839   | 1        | 52.129   | 5        |
+| Valid | CPU Usage       | 50.215   | 4        | 55.582   | 1        |
+| Valid | CPU Memory      | 18.967   | 5        | 19.404   | 2        |
+| Valid | Loss            | 0.693    | 3        | 0.695    | 2        |
+| Valid | Accuracy        | 51.061   | 1        | 51.369   | 5        |
+
+### Run 3
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 1 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  activation: Relu
+  params: 7170
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Loss       | 0.692    | 3        | 0.692    | 1        |
+| Train | CPU Memory | 19.209   | 3        | 19.498   | 1        |
+| Train | Accuracy   | 51.713   | 1        | 51.851   | 3        |
+| Train | CPU Usage  | 53.681   | 1        | 54.714   | 3        |
+| Valid | Loss       | 0.693    | 1        | 0.693    | 2        |
+| Valid | CPU Memory | 19.228   | 2        | 19.481   | 1        |
+| Valid | Accuracy   | 51.387   | 3        | 51.414   | 1        |
+| Valid | CPU Usage  | 52.290   | 1        | 53.637   | 3        |
+
+### Run 4
+
+- Notes
+  
+tried taking the log of the volume column and removing the min max norm. Spoiler alert, fail.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 1 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  activation: Relu
+  params: 7170
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Usage  | 54.374   | 3        | 55.855   | 1        |
+| Train | Loss       | NaN      | 1        | NaN      | 3        |
+| Train | CPU Memory | 19.632   | 1        | 19.952   | 3        |
+| Train | Accuracy   | 48.180   | 2        | 48.184   | 1        |
+| Valid | CPU Usage  | 50.668   | 3        | 53.622   | 1        |
+| Valid | Loss       | NaN      | 1        | NaN      | 3        |
+| Valid | CPU Memory | 19.915   | 2        | 19.958   | 3        |
+| Valid | Accuracy   | 48.584   | 1        | 48.584   | 3        |
+
+### Run 5
+
+- Notes
+  
+tried taking the log of the volume column and removing the min max norm. Spoiler alert, fail.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 1 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  activation: Relu
+  params: 7170
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Usage  | 54.374   | 3        | 55.855   | 1        |
+| Train | Loss       | NaN      | 1        | NaN      | 3        |
+| Train | CPU Memory | 19.632   | 1        | 19.952   | 3        |
+| Train | Accuracy   | 48.180   | 2        | 48.184   | 1        |
+| Valid | CPU Usage  | 50.668   | 3        | 53.622   | 1        |
+| Valid | Loss       | NaN      | 1        | NaN      | 3        |
+| Valid | CPU Memory | 19.915   | 2        | 19.958   | 3        |
+| Valid | Accuracy   | 48.584   | 1        | 48.584   | 3        |
+
+### Run 6
+
+- Notes
+
+Going to add a dropout layer.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 1 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+| dropout | 0.5 |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 7170
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Accuracy   | 50.903   | 1        | 51.391   | 3        |
+| Train | Loss       | 0.693    | 3        | 0.694    | 1        |
+| Train | CPU Memory | 19.722   | 1        | 19.949   | 2        |
+| Train | CPU Usage  | 55.119   | 1        | 56.131   | 2        |
+| Valid | Accuracy   | 51.397   | 3        | 51.417   | 1        |
+| Valid | Loss       | 0.693    | 1        | 0.693    | 2        |
+| Valid | CPU Memory | 19.340   | 3        | 20.021   | 2        |
+| Valid | CPU Usage  | 52.641   | 2        | 54.060   | 3        |
+
+### Run 7
+
+- Notes
+
+Added 2 more hidden layers.
+
+- Config
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 3 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+| dropout | 0.5 |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  ln1: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln2: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 138754
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Accuracy   | 50.975   | 1        | 51.648   | 3        |
+| Train | CPU Usage  | 51.280   | 2        | 51.635   | 1        |
+| Train | Loss       | 0.693    | 3        | 0.693    | 1        |
+| Train | CPU Memory | 19.638   | 3        | 19.773   | 2        |
+| Valid | Accuracy   | 51.416   | 1        | 51.416   | 3        |
+| Valid | CPU Usage  | 48.600   | 3        | 49.028   | 1        |
+| Valid | Loss       | 0.693    | 1        | 0.693    | 3        |
+| Valid | CPU Memory | 19.627   | 2        | 19.733   | 1        |
+
+### Run 8
+
+- Notes
+
+Taking out the bias.
+
+- Config
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 3 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | false |
+
+- Results
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  ln1: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln2: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 138754
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Usage  | 55.270   | 1        | 61.351   | 2        |
+| Train | CPU Memory | 19.492   | 2        | 19.718   | 1        |
+| Train | Loss       | 0.693    | 3        | 0.693    | 1        |
+| Train | Accuracy   | 50.980   | 1        | 51.621   | 3        |
+| Valid | CPU Usage  | 50.155   | 1        | 56.421   | 3        |
+| Valid | CPU Memory | 19.342   | 2        | 19.663   | 3        |
+| Valid | Loss       | 0.693    | 1        | 0.693    | 3        |
+| Valid | Accuracy   | 51.416   | 1        | 51.416   | 3        |
+
+### Run 9
+
+- Notes
+
+Seems I am stuck at a loss of 0.693. My learning rate or initialization probably off. Going to up my learning rate.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 5e-1 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 3 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 25, d_output: 256, bias: true, params: 6656}
+  ln1: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  ln2: Linear {d_input: 256, d_output: 256, bias: true, params: 65792}
+  output_layer: Linear {d_input: 256, d_output: 2, bias: true, params: 514}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 138754
+}
+Total Epochs: 6
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Loss       | 0.719    | 2        | NaN      | 6        |
+| Train | CPU Usage  | 54.249   | 6        | 66.030   | 4        |
+| Train | Accuracy   | 50.465   | 4        | 50.626   | 1        |
+| Train | CPU Memory | 19.801   | 2        | 20.048   | 4        |
+| Valid | Loss       | 0.693    | 4        | NaN      | 6        |
+| Valid | CPU Usage  | 51.482   | 5        | 57.649   | 2        |
+| Valid | Accuracy   | 48.584   | 1        | 51.416   | 5        |
+| Valid | CPU Memory | 19.713   | 1        | 20.040   | 6        |
+
+### Run 10
+
+- Notes
+
+The learning rate increase was fine, still only getting my losst to around 0.7. Let's add more layers.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 5e-1 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 25 |
+| hidden_layers | 3 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |

@@ -1,21 +1,24 @@
 use burn::{
     module::Module,
-    nn::{loss::CrossEntropyLossConfig, Linear, LinearConfig, Relu},
+    nn::{loss::CrossEntropyLossConfig, Dropout, DropoutConfig, Linear, LinearConfig, Relu},
     prelude::Backend,
-    tensor::{backend::AutodiffBackend, Tensor},
+    tensor::{activation::softmax, backend::AutodiffBackend, Tensor},
     train::{ClassificationOutput, TrainOutput, TrainStep, ValidStep},
 };
 
 use crate::dataset::DailyLinearBatch;
 
 const INPUT_SIZE: usize = 25;
-const HIDDEN_SIZE: usize = 128;
+const HIDDEN_SIZE: usize = 256;
 const OUTPUT_SIZE: usize = 2;
 
 #[derive(Module, Debug)]
 pub struct Model<B: Backend> {
     input_layer: Linear<B>,
+    ln1: Linear<B>,
+    ln2: Linear<B>,
     output_layer: Linear<B>,
+    dropout: Dropout,
     activation: Relu,
 }
 
@@ -31,6 +34,13 @@ impl<B: Backend> Model<B> {
         let input_layer = LinearConfig::new(INPUT_SIZE, HIDDEN_SIZE)
             .with_bias(true)
             .init(device);
+        let ln1 = LinearConfig::new(HIDDEN_SIZE, HIDDEN_SIZE)
+            .with_bias(true)
+            .init(device);
+        let ln2 = LinearConfig::new(HIDDEN_SIZE, HIDDEN_SIZE)
+            .with_bias(true)
+            .init(device);
+        let dropout = DropoutConfig::new(0.5).init();
         let output_layer = LinearConfig::new(HIDDEN_SIZE, OUTPUT_SIZE)
             .with_bias(true)
             .init(device);
@@ -39,7 +49,10 @@ impl<B: Backend> Model<B> {
 
         Self {
             input_layer,
+            ln1,
+            ln2,
             output_layer,
+            dropout,
             activation,
         }
     }
@@ -48,12 +61,23 @@ impl<B: Backend> Model<B> {
         let x = input.detach();
         let x = self.input_layer.forward(x);
         let x = self.activation.forward(x);
+        let x = self.dropout.forward(x);
+
+        let x = self.ln1.forward(x);
+        let x = self.activation.forward(x);
+        let x = self.dropout.forward(x);
+
+        let x = self.ln2.forward(x);
+        let x = self.activation.forward(x);
+        let x = self.dropout.forward(x);
+
         self.output_layer.forward(x)
     }
 
     pub fn forward_step(&self, item: DailyLinearBatch<B>) -> ClassificationOutput<B> {
         let targets = item.targets;
         let output = self.forward(item.inputs);
+
         let loss = CrossEntropyLossConfig::new()
             .with_logits(true)
             .init(&output.device())
