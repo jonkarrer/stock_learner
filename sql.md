@@ -103,7 +103,7 @@ create tables
 
 ```sql
 CREATE TABLE daily_linear_classifier_train (
- row_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  row_id INTEGER PRIMARY KEY AUTOINCREMENT,
     open_price REAL NOT NULL DEFAULT 0.0,
     close_price REAL NOT NULL DEFAULT 0.0,
     high_price REAL NOT NULL DEFAULT 0.0,
@@ -129,7 +129,9 @@ CREATE TABLE daily_linear_classifier_train (
     fourteen_day_rsi REAL NOT NULL,
     top_bollinger_band REAL NOT NULL,
     middle_bollinger_band REAL NOT NULL,
-    bottom_bollinger_band REAL NOT NULL
+    bottom_bollinger_band REAL NOT NULL,
+    previous_period_trend INTEGER NOT NULL,
+    macd_signal INTEGER NOT NULL
 );
 ```
 
@@ -162,7 +164,9 @@ INSERT INTO daily_linear_classifier_train (
  fourteen_day_rsi,
  top_bollinger_band,
  middle_bollinger_band,
- bottom_bollinger_band
+ bottom_bollinger_band,
+ previous_period_trend,
+ macd_signal
 )
 SELECT
  open_price,
@@ -190,7 +194,9 @@ SELECT
  fourteen_day_rsi,
  top_bollinger_band,
  middle_bollinger_band,
- bottom_bollinger_band
+ bottom_bollinger_band,
+ CASE WHEN previous_period_trend = 'bullish' THEN 1 ELSE 0 END AS previous_period_trend,
+ macd_signal
 FROM daily_stock_bars
-WHERE event_unix_timestamp < 1667810064000;
+WHERE event_unix_timestamp < 1678910064000;
 ```

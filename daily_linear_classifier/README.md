@@ -655,4 +655,4 @@ Total Epochs: 5
 
 ## Conclusion
 
-Still not moving the needle. This was expected, as predicting stocks is hard. I may need to revisist my data, but a simple model like this was expected to not be very accurate.
+Still not moving the needle. This was expected, as predicting stocks is hard. I may need to rework my data, but a simple model like this was expected to not be very accurate. Random guessing is all that it can do, and my assumption is there is not much predictive power in the data.
