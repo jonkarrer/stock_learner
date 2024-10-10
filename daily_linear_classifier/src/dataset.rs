@@ -38,7 +38,7 @@ pub struct DailyLinearItem {
     pub middle_bollinger_band: f32,
     pub bottom_bollinger_band: f32,
     pub macd_signal: f32,
-    pub previous_bar_trend: i32,
+    pub previous_period_trend: i32,
 }
 
 pub struct DailyLinearDataset {
@@ -137,7 +137,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
                     item.middle_bollinger_band,
                     item.bottom_bollinger_band,
                     item.macd_signal,
-                    item.previous_bar_trend as f32,
+                    item.previous_period_trend as f32,
                 ],
                 &self.device,
             );
