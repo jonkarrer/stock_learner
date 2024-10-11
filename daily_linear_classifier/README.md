@@ -822,7 +822,7 @@ Total Epochs: 6
 | Valid | Accuracy   | 48.152   | 1        | 51.865   | 3        |
 | Valid | Loss       | 16.754   | 4        | 179.804  | 6        |
 
-### Run 3
+### Run 2.3
 
 - Notes
 
@@ -873,7 +873,7 @@ Total Epochs: 6
 | Valid | Accuracy   | 48.152   | 1        | 51.865   | 3        |
 | Valid | Loss       | 16.754   | 4        | 179.804  | 6        |
 
-### Run 4
+### Run 2.4
 
 - Notes
 

@@ -241,6 +241,8 @@ mod tests {
         let items = items[110..113].to_vec();
 
         let batch = batcher.batch(items);
+
+        dbg!(batch.inputs);
         assert!(false)
     }
 }

@@ -2,7 +2,7 @@ use burn::{
     module::Module,
     nn::{loss::CrossEntropyLossConfig, Dropout, DropoutConfig, Linear, LinearConfig, Relu},
     prelude::Backend,
-    tensor::{activation::softmax, backend::AutodiffBackend, Tensor},
+    tensor::{backend::AutodiffBackend, Tensor},
     train::{ClassificationOutput, TrainOutput, TrainStep, ValidStep},
 };
 
