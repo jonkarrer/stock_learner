@@ -8,7 +8,7 @@ use burn::{
 
 use crate::dataset::DailyLinearBatch;
 
-const INPUT_SIZE: usize = 27;
+const INPUT_SIZE: usize = 44;
 const HIDDEN_SIZE: usize = 512;
 const OUTPUT_SIZE: usize = 2;
 

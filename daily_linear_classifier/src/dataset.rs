@@ -39,6 +39,23 @@ pub struct DailyLinearItem {
     pub bottom_bollinger_band: f32,
     pub macd_signal: f32,
     pub previous_period_trend: i32,
+    pub distance_to_hundred_day_sma: f32,
+    pub distance_to_hundred_day_ema: f32,
+    pub distance_to_fifty_day_sma: f32,
+    pub distance_to_fifty_day_ema: f32,
+    pub distance_to_twenty_day_sma: f32,
+    pub distance_to_twenty_day_ema: f32,
+    pub distance_to_nine_day_ema: f32,
+    pub distance_to_nine_day_sma: f32,
+    pub distance_to_hundred_day_high: f32,
+    pub distance_to_hundred_day_low: f32,
+    pub distance_to_fifty_day_high: f32,
+    pub distance_to_fifty_day_low: f32,
+    pub distance_to_ten_day_high: f32,
+    pub distance_to_ten_day_low: f32,
+    pub distance_to_top_bollinger_band: f32,
+    pub distance_to_middle_bollinger_band: f32,
+    pub distance_to_bottom_bollinger_band: f32,
 }
 
 pub struct DailyLinearDataset {
@@ -138,6 +155,23 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
                     item.bottom_bollinger_band,
                     item.macd_signal,
                     item.previous_period_trend as f32,
+                    item.distance_to_hundred_day_sma,
+                    item.distance_to_hundred_day_ema,
+                    item.distance_to_fifty_day_sma,
+                    item.distance_to_fifty_day_ema,
+                    item.distance_to_twenty_day_sma,
+                    item.distance_to_twenty_day_ema,
+                    item.distance_to_nine_day_ema,
+                    item.distance_to_nine_day_sma,
+                    item.distance_to_hundred_day_high,
+                    item.distance_to_hundred_day_low,
+                    item.distance_to_fifty_day_high,
+                    item.distance_to_fifty_day_low,
+                    item.distance_to_ten_day_high,
+                    item.distance_to_ten_day_low,
+                    item.distance_to_top_bollinger_band,
+                    item.distance_to_middle_bollinger_band,
+                    item.distance_to_bottom_bollinger_band,
                 ],
                 &self.device,
             );
@@ -203,10 +237,10 @@ mod tests {
         let train = DailyLinearDataset::train();
         let batcher: DailyLinearBatcher<MyBackend> = DailyLinearBatcher::new(device);
 
-        let items: Vec<DailyLinearItem> = train.dataset.iter().take(3).collect();
+        let items: Vec<DailyLinearItem> = train.dataset.iter().take(200).collect();
+        let items = items[110..113].to_vec();
 
         let batch = batcher.batch(items);
-        dbg!(batch.targets.unsqueeze_dim::<2>(1).into_data());
         assert!(false)
     }
 }

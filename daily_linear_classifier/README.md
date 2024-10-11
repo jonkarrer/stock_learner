@@ -653,6 +653,277 @@ Total Epochs: 5
 | Valid | CPU Memory | 19.971   | 4        | 20.622   | 3        |
 | Valid | Loss       | 0.696    | 3        | 0.701    | 2        |
 
-## Conclusion
+### Run 13
 
-Still not moving the needle. This was expected, as predicting stocks is hard. I may need to rework my data, but a simple model like this was expected to not be very accurate. Random guessing is all that it can do, and my assumption is there is not much predictive power in the data.
+- Notes
+
+Added two more features, previous bar trend and macd signal. This was more of the same result wise.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-2 |
+| weight_decay | 5e-5 |
+| batch_size | 512 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | SGD |
+| input_size | 27 |
+| hidden_layers | 2 |
+| hidden_layer_size | 512 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 27, d_output: 512, bias: true, params: 14336}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 278018
+}
+Total Epochs: 8
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Memory | 20.956   | 7        | 21.549   | 2        |
+| Train | CPU Usage  | 53.669   | 8        | 58.540   | 3        |
+| Train | Loss       | 0.693    | 2        | 0.709    | 1        |
+| Train | Accuracy   | 51.283   | 6        | 51.380   | 4        |
+| Valid | CPU Memory | 20.979   | 7        | 21.453   | 2        |
+| Valid | CPU Usage  | 52.584   | 8        | 59.560   | 6        |
+| Valid | Loss       | 0.692    | 6        | 0.698    | 3        |
+| Valid | Accuracy   | 48.155   | 1        | 51.845   | 8        |
+
+## Training Round 1 Conclusion
+
+Still not moving the needle. This was expected, as predicting stocks is hard. I may need to rework my data, but a simple model like this was expected to not be very accurate. Random guessing is all that it can do, and my assumption is there is not much predictive power in the data. So my next step it do do some feature engineering and try to improve the dataset.
+
+## Feature Engineering
+
+It seems the data does not have enough predictive power juice in the current set up. A few low hanging fruit features could be added.
+
+### Brainstorm
+
+- Add distance to high/low
+- Add distance to bollinger bands
+- Add distance to averages
+
+## Training Round 2
+
+### Run 2.0
+
+- Notes
+
+Added the distances as features, about 17 more
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 44 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 44, d_output: 512, bias: true, params: 23040}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 286722
+}
+Total Epochs: 5
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Accuracy   | 51.184   | 5        | 51.400   | 3        |
+| Train | CPU Memory | 21.660   | 1        | 21.842   | 5        |
+| Train | CPU Usage  | 55.364   | 4        | 57.356   | 3        |
+| Train | Loss       | 0.693    | 2        | 0.731    | 1        |
+| Valid | Accuracy   | 51.845   | 1        | 51.845   | 5        |
+| Valid | CPU Memory | 21.638   | 1        | 21.885   | 3        |
+| Valid | CPU Usage  | 53.882   | 1        | 54.789   | 3        |
+| Valid | Loss       | 0.692    | 3        | 0.693    | 4        |
+
+### Run 2.1
+
+- Notes
+
+Last run was more of the same. So let's take out min max norm and add a leaky relu. Also removed volume feature as it is varying too much.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 43 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | LeakyRelu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 43, d_output: 512, bias: true, params: 22528}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: LeakyRelu {negative_slope: 0.01}
+  params: 286210
+}
+Total Epochs: 6
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Memory | 20.843   | 5        | 21.023   | 4        |
+| Train | CPU Usage  | 50.155   | 5        | 60.643   | 6        |
+| Train | Accuracy   | 50.047   | 5        | 50.165   | 6        |
+| Train | Loss       | 107.629  | 5        | 155.673  | 6        |
+| Valid | CPU Memory | 20.749   | 6        | 21.020   | 5        |
+| Valid | CPU Usage  | 48.772   | 4        | 52.440   | 1        |
+| Valid | Accuracy   | 48.152   | 1        | 51.865   | 3        |
+| Valid | Loss       | 16.754   | 4        | 179.804  | 6        |
+
+### Run 3
+
+- Notes
+
+Remove negative slope
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 44 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 43, d_output: 512, bias: true, params: 22528}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: LeakyRelu {negative_slope: 0.01}
+  params: 286210
+}
+Total Epochs: 6
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Memory | 20.843   | 5        | 21.023   | 4        |
+| Train | CPU Usage  | 50.155   | 5        | 60.643   | 6        |
+| Train | Accuracy   | 50.047   | 5        | 50.165   | 6        |
+| Train | Loss       | 107.629  | 5        | 155.673  | 6        |
+| Valid | CPU Memory | 20.749   | 6        | 21.020   | 5        |
+| Valid | CPU Usage  | 48.772   | 4        | 52.440   | 1        |
+| Valid | Accuracy   | 48.152   | 1        | 51.865   | 3        |
+| Valid | Loss       | 16.754   | 4        | 179.804  | 6        |
+
+### Run 4
+
+- Notes
+
+Ok at this point I'm wondering if this thing is learning at all, so let's put the target in the features, and only th target.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 1 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 1, d_output: 512, bias: true, params: 1024}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 264706
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Memory | 20.355   | 1        | 20.462   | 2        |
+| Train | Accuracy   | 99.890   | 1        | 100.000  | 3        |
+| Train | Loss       | 4.286e-5 | 2        | 0.024    | 1        |
+| Train | CPU Usage  | 49.532   | 3        | 50.228   | 2        |
+| Valid | CPU Memory | 20.354   | 1        | 20.422   | 3        |
+| Valid | Accuracy   | 100.000  | 1        | 100.000  | 3        |
+| Valid | Loss       | 1.240e-5 | 1        | 3.078e-5 | 3        |
+| Valid | CPU Usage  | 47.896   | 3        | 49.296   | 1        |
+
+## Training Round 2 Conclusion
+
+Well good news is that the model can learn, as it was 100 percent for the situation of putting the target in the features, and only the target. So even with the 27 additional features, not much is giving predictive power, at least for a linear model that is just trying to predict the target on one row. The nature of this data is time series, so maybe a time series focused model would be better.
