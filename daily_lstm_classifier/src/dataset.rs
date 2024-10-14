@@ -231,7 +231,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let mut targets = Vec::new();
 
         for (i, item) in items.iter().enumerate() {
-            if i != 0 && i % 9 == 0 {
+            if i != 0 && i % config.sequence_length == 0 {
                 targets.push(Tensor::<B, 1, Int>::from_ints([item.label], &self.device));
             }
         }

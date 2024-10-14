@@ -12,7 +12,7 @@ impl ModelConfig {
             input_size: 46,
             hidden_size: 512,
             output_size: 2,
-            sequence_length: 9,
+            sequence_length: 3,
             dropout: 0.5,
         }
     }

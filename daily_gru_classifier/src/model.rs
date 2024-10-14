@@ -3,7 +3,7 @@ use burn::{
     nn::{
         gru::{Gru, GruConfig},
         loss::CrossEntropyLossConfig,
-        Dropout, DropoutConfig, LayerNorm, LayerNormConfig, Linear, LinearConfig, Relu,
+        Dropout, DropoutConfig, Gelu, LayerNorm, LayerNormConfig, Linear, LinearConfig, Relu,
     },
     prelude::Backend,
     tensor::{backend::AutodiffBackend, Tensor},
@@ -20,9 +20,10 @@ pub struct Model<B: Backend> {
     input_layer: Gru<B>,
     ln1: Linear<B>,
     ln2: Linear<B>,
+    ln3: Linear<B>,
     output_layer: Linear<B>,
     dropout: Dropout,
-    activation: Relu,
+    activation: Gelu,
     layer_norm: LayerNorm<B>,
 }
 
@@ -53,17 +54,22 @@ impl<B: Backend> Model<B> {
             .with_bias(true)
             .init(device);
 
+        let ln3 = LinearConfig::new(hidden_size, hidden_size)
+            .with_bias(true)
+            .init(device);
+
         let dropout = DropoutConfig::new(dropout as f64).init();
         let output_layer = LinearConfig::new(hidden_size, output_size)
             .with_bias(true)
             .init(device);
 
-        let activation = Relu::new();
+        let activation = Gelu::new();
 
         Self {
             input_layer,
             ln1,
             ln2,
+            ln3,
             output_layer,
             dropout,
             activation,
@@ -78,11 +84,15 @@ impl<B: Backend> Model<B> {
 
         let x = self.ln1.forward(x);
         let x = self.activation.forward(x);
-        let x = self.dropout.forward(x);
+        // let x = self.dropout.forward(x);
 
         let x = self.ln2.forward(x);
         let x = self.activation.forward(x);
-        let x = self.dropout.forward(x);
+        // let x = self.dropout.forward(x);
+
+        let x = self.ln3.forward(x);
+        let x = self.activation.forward(x);
+        // let x = self.dropout.forward(x);
 
         // Reshape from [batch_size, sequence_length, hidden_size] to [batch_size, hidden_size]
         // ... this is because we only need the last output of the sequence as for the classification.

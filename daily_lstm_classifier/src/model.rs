@@ -1,10 +1,8 @@
 use burn::{
     module::Module,
     nn::{
-        gru::{Gru, GruConfig},
-        loss::CrossEntropyLossConfig,
-        Dropout, DropoutConfig, LayerNorm, LayerNormConfig, Linear, LinearConfig, Lstm, LstmConfig,
-        Relu,
+        loss::CrossEntropyLossConfig, Dropout, DropoutConfig, LayerNorm, LayerNormConfig, Linear,
+        LinearConfig, Lstm, LstmConfig, Relu,
     },
     prelude::Backend,
     tensor::{backend::AutodiffBackend, Tensor},
