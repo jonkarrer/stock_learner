@@ -1088,3 +1088,56 @@ Total Epochs: 3
 ## Training Round 3 Conclusion
 
 The 55% accuracy is identical to my split on bullish and bearish labels for the data sets. So the model is still just random guessing.
+
+## Training Round 4
+
+Going to give GRU a shot.
+
+### Run 4.0
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 46 |
+| hidden_layers | 3 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Gru {d_input: 46, d_hidden: 512, bias: true, params: 860160}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  ln2: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  layer_norm: LayerNorm {d_model: 512, epsilon: 0.00001, params: 1024}
+  params: 1387522
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Memory | 20.780   | 2        | 20.911   | 1        |
+| Train | Loss       | 0.693    | 2        | 0.699    | 1        |
+| Train | Accuracy   | 51.294   | 3        | 51.909   | 2        |
+| Train | CPU Usage  | 30.205   | 1        | 35.754   | 3        |
+| Valid | CPU Memory | 20.478   | 2        | 21.474   | 1        |
+| Valid | Loss       | 0.692    | 1        | 0.693    | 2        |
+| Valid | Accuracy   | 51.507   | 2        | 52.210   | 1        |
+| Valid | CPU Usage  | 51.820   | 3        | 65.341   | 1        |

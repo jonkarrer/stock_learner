@@ -27,6 +27,9 @@ pub struct DailyLinearTrainingConfig {
     #[config(default = 10)]
     pub num_epochs: usize,
 
+    #[config(default = 3000)]
+    pub batch_size: usize,
+
     #[config(default = 4)]
     pub num_workers: usize,
 
@@ -34,7 +37,6 @@ pub struct DailyLinearTrainingConfig {
     pub seed: u64,
 
     pub optimizer: AdamConfig,
-    pub batch_size: usize,
 }
 
 fn create_artifact_dir(artifact_dir: &str) {
@@ -50,7 +52,7 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
     let optimizer_config = AdamConfig::new()
         .with_weight_decay(Some(WeightDecayConfig::new(5e-5)))
         .with_grad_clipping(Some(GradientClippingConfig::Norm(1.0)));
-    let config = DailyLinearTrainingConfig::new(optimizer_config, 512);
+    let config = DailyLinearTrainingConfig::new(optimizer_config);
     B::seed(config.seed);
 
     // Data
@@ -88,7 +90,7 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
         .devices(vec![device.clone()])
         .num_epochs(config.num_epochs)
         .summary()
-        .build(Model::<B>::new(&device), config.optimizer.init(), 5e-2);
+        .build(Model::<B>::new(&device), config.optimizer.init(), 3e-3);
 
     let model_trained = learner.fit(dataloader_train, dataloader_valid);
 

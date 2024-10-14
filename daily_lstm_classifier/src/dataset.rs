@@ -8,6 +8,8 @@ use burn::{
 };
 use serde::{Deserialize, Serialize};
 
+use crate::config::get_config;
+
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DailyLinearItem {
     pub row_id: i32,
@@ -110,7 +112,7 @@ pub struct DailyLinearBatcher<B: Backend> {
 
 #[derive(Clone, Debug)]
 pub struct DailyLinearBatch<B: Backend> {
-    pub inputs: Tensor<B, 2>,
+    pub inputs: Tensor<B, 3>,
     pub targets: Tensor<B, 1, Int>,
 }
 
@@ -128,16 +130,19 @@ impl<B: Backend> DailyLinearBatcher<B> {
 
 impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBatcher<B> {
     fn batch(&self, items: Vec<DailyLinearItem>) -> DailyLinearBatch<B> {
-        let mut inputs: Vec<Tensor<B, 2>> = Vec::new();
+        let config = get_config();
+        let mut inputs: Vec<Tensor<B, 3>> = Vec::new();
+        let mut sequence: Vec<Tensor<B, 2>> = Vec::new();
+        let mut start_seq_len = config.sequence_length;
 
-        for item in items.iter() {
+        for (i, item) in items.iter().enumerate() {
             let input_tensor = Tensor::<B, 1>::from_floats(
                 [
                     item.open_price,
                     item.close_price,
                     item.high_price,
                     item.low_price,
-                    // item.volume,
+                    item.volume,
                     item.volume_weighted_price,
                     item.bar_trend as f32,
                     item.hundred_day_sma,
@@ -184,20 +189,32 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
             );
 
             // make the tensor 2D for easy concat later
-            // inputs = [
+            // sequence = [
             //     Tensor([[10.5, 100.0, 50.2]]),
             //     Tensor([[20.1, 95.5, 60.0]]),
             //     Tensor([[15.3, 105.2, 55.7]]),
             // ];
-            inputs.push(input_tensor.unsqueeze());
+            sequence.push(input_tensor.unsqueeze());
+
+            if i == start_seq_len - 1 {
+                // concat the tensors, now the shape is (sequence_length, feature length)
+                // inputs = Tensor([
+                //     [10.5, 100.0, 50.2],
+                //     [20.1, 95.5, 60.0],
+                //     [15.3, 105.2, 55.7]
+                // ], ...)
+                inputs.push(Tensor::cat(sequence, 0).unsqueeze::<3>());
+                sequence = Vec::new();
+                start_seq_len += config.sequence_length;
+            }
         }
 
-        // concat the tensors, now the shape is (batch_size, feature length)
+        // concat the tensors, now the shape is (batch_size, sequence_length, feature length)
         // inputs = Tensor([
         //     [10.5, 100.0, 50.2],
         //     [20.1, 95.5, 60.0],
         //     [15.3, 105.2, 55.7]
-        // ])
+        // ], ...)
         let inputs = Tensor::cat(inputs, 0);
 
         // normalize the inputs so that they fit between 0 and 1
@@ -211,13 +228,17 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         //     Tensor([1.0]),
         //     Tensor([0.0])
         // ]
-        let targets = items
-            .iter()
-            .map(|item| Tensor::<B, 1, Int>::from_ints([item.future_ten_day_trend], &self.device))
-            .collect();
+        let mut targets = Vec::new();
+
+        for (i, item) in items.iter().enumerate() {
+            if i != 0 && i % 9 == 0 {
+                targets.push(Tensor::<B, 1, Int>::from_ints([item.label], &self.device));
+            }
+        }
 
         // do not need to unsqueeze here, just concat for a 1D tensor
         // targets = Tensor([1.0, 0.0, 1.0, 1.0, 0.0])
+        // dbg!(targets.len());
         let targets = Tensor::cat(targets, 0);
 
         DailyLinearBatch { inputs, targets }
@@ -245,11 +266,12 @@ mod tests {
         let batcher: DailyLinearBatcher<MyBackend> = DailyLinearBatcher::new(device);
 
         let items: Vec<DailyLinearItem> = train.dataset.iter().take(200).collect();
-        let items = items[110..113].to_vec();
+        let items = items[100..149].to_vec();
 
         let batch = batcher.batch(items);
 
-        dbg!(batch.inputs);
+        dbg!(batch.inputs.shape());
+        dbg!(batch.targets.shape());
         assert!(false)
     }
 }
