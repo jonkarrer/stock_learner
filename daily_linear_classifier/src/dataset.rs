@@ -39,6 +39,11 @@ pub struct DailyLinearItem {
     pub bottom_bollinger_band: f32,
     pub macd_signal: f32,
     pub previous_period_trend: i32,
+    pub previous_five_day_trend: i32,
+    pub previous_ten_day_trend: i32,
+    pub future_three_day_trend: i32,
+    pub future_five_day_trend: i32,
+    pub future_ten_day_trend: i32,
     pub distance_to_hundred_day_sma: f32,
     pub distance_to_hundred_day_ema: f32,
     pub distance_to_fifty_day_sma: f32,
@@ -155,6 +160,8 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
                     item.bottom_bollinger_band,
                     item.macd_signal,
                     item.previous_period_trend as f32,
+                    item.previous_five_day_trend as f32,
+                    item.previous_ten_day_trend as f32,
                     item.distance_to_hundred_day_sma,
                     item.distance_to_hundred_day_ema,
                     item.distance_to_fifty_day_sma,
@@ -206,7 +213,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         // ]
         let targets = items
             .iter()
-            .map(|item| Tensor::<B, 1, Int>::from_ints([item.label], &self.device))
+            .map(|item| Tensor::<B, 1, Int>::from_ints([item.future_ten_day_trend], &self.device))
             .collect();
 
         // do not need to unsqueeze here, just concat for a 1D tensor

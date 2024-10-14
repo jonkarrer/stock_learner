@@ -8,7 +8,7 @@ use burn::{
 
 use crate::dataset::DailyLinearBatch;
 
-const INPUT_SIZE: usize = 44;
+const INPUT_SIZE: usize = 46;
 const HIDDEN_SIZE: usize = 512;
 const OUTPUT_SIZE: usize = 2;
 
@@ -58,7 +58,7 @@ impl<B: Backend> Model<B> {
         let x = input.detach();
         let x = self.input_layer.forward(x);
         let x = self.activation.forward(x);
-        let x = self.dropout.forward(x);
+        // let x = self.dropout.forward(x);
 
         let x = self.ln1.forward(x);
         let x = self.activation.forward(x);

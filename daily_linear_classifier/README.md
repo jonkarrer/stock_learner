@@ -927,3 +927,164 @@ Total Epochs: 3
 ## Training Round 2 Conclusion
 
 Well good news is that the model can learn, as it was 100 percent for the situation of putting the target in the features, and only the target. So even with the 27 additional features, not much is giving predictive power, at least for a linear model that is just trying to predict the target on one row. The nature of this data is time series, so maybe a time series focused model would be better.
+
+## Training Round 3
+
+Before I try a more sophisticated model, let's try to predict something else. How about where the price will be in 3, 5, or 10 days instead of just the next period.
+
+### Run 3.0
+
+- Notes
+
+Let's see if it can predict the price going up or down on day 3.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 46 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 46, d_output: 512, bias: true, params: 24064}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 287746
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Usage  | 56.192   | 2        | 59.178   | 3        |
+| Train | CPU Memory | 20.222   | 3        | 20.275   | 1        |
+| Train | Loss       | 0.692    | 2        | 0.753    | 1        |
+| Train | Accuracy   | 52.987   | 2        | 53.063   | 3        |
+| Valid | CPU Usage  | 56.116   | 3        | 63.149   | 2        |
+| Valid | CPU Memory | 20.148   | 3        | 20.345   | 2        |
+| Valid | Loss       | 0.692    | 1        | 0.694    | 2        |
+| Valid | Accuracy   | 47.114   | 2        | 52.886   | 1        |
+
+### Run 3.1
+
+- Notes
+
+Not bad, 1 ish percent increase. Let's try 5 day price.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 46 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 46, d_output: 512, bias: true, params: 24064}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 287746
+}
+Total Epochs: 4
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | CPU Memory | 20.149   | 1        | 20.469   | 3        |
+| Train | Accuracy   | 53.859   | 1        | 53.976   | 2        |
+| Train | CPU Usage  | 57.179   | 2        | 62.449   | 4        |
+| Train | Loss       | 0.690    | 3        | 0.748    | 1        |
+| Valid | CPU Memory | 20.044   | 4        | 20.726   | 3        |
+| Valid | Accuracy   | 46.647   | 3        | 53.353   | 4        |
+| Valid | CPU Usage  | 55.364   | 2        | 63.232   | 4        |
+| Valid | Loss       | 0.691    | 2        | 0.693    | 3        |
+
+### Run 3.2
+
+- Notes
+
+More of the same. Lastly, let's try 10 days ahead.
+
+- Config
+
+| Hyperparameters | Value |
+|-----------------|-------|
+| epochs | 10 |
+| learning_rate | 1e-5 |
+| weight_decay | 5e-5 |
+| batch_size | 256 |
+| num_workers | 4 |
+| seed | 42 |
+| device | wgpu |
+| loss | CrossEntropyLoss |
+| optimizer | Adam |
+| input_size | 46 |
+| hidden_layers | 2 |
+| hidden_layer_size | 256 |
+| output_size | 2 |
+| hidden_layer_activation | Relu |
+| output_activation | with logits |
+| shuffle_batch | true |
+| bias | true |
+
+- Results
+
+Model {
+  input_layer: Linear {d_input: 46, d_output: 512, bias: true, params: 24064}
+  ln1: Linear {d_input: 512, d_output: 512, bias: true, params: 262656}
+  output_layer: Linear {d_input: 512, d_output: 2, bias: true, params: 1026}
+  dropout: Dropout {prob: 0.5}
+  activation: Relu
+  params: 287746
+}
+Total Epochs: 3
+
+| Split | Metric     | Min.     | Epoch    | Max.     | Epoch    |
+|-------|------------|----------|----------|----------|----------|
+| Train | Loss       | 0.688    | 2        | 0.799    | 1        |
+| Train | Accuracy   | 55.222   | 1        | 55.327   | 2        |
+| Train | CPU Usage  | 56.388   | 2        | 56.885   | 1        |
+| Train | CPU Memory | 20.198   | 1        | 20.271   | 3        |
+| Valid | Loss       | 0.690    | 1        | 0.704    | 2        |
+| Valid | Accuracy   | 53.965   | 1        | 53.965   | 3        |
+| Valid | CPU Usage  | 54.261   | 3        | 55.384   | 2        |
+| Valid | CPU Memory | 20.221   | 1        | 20.363   | 3        |
+
+## Training Round 3 Conclusion
+
+The 55% accuracy is identical to my split on bullish and bearish labels for the data sets. So the model is still just random guessing.
