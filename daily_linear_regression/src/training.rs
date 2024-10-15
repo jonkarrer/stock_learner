@@ -9,7 +9,7 @@ use burn::{
     train::{
         metric::{
             store::{Aggregate, Direction, Split},
-            AccuracyMetric, CpuMemory, CpuUse, LossMetric,
+            CpuMemory, CpuUse, LossMetric,
         },
         LearnerBuilder, MetricEarlyStoppingStrategy, StoppingCondition,
     },
@@ -17,17 +17,15 @@ use burn::{
 
 use crate::{
     dataset::{DailyLinearBatcher, DailyLinearDataset},
-    model::Model,
+    model::{self, Model},
 };
-
-static ARTIFACTS_DIR: &str = "/tmp/burn/daily_linear_regression";
 
 #[derive(Config)]
 pub struct DailyLinearTrainingConfig {
     #[config(default = 10)]
     pub num_epochs: usize,
 
-    #[config(default = 1000)]
+    #[config(default = 5000)]
     pub batch_size: usize,
 
     #[config(default = 4)]
@@ -39,15 +37,7 @@ pub struct DailyLinearTrainingConfig {
     pub optimizer: AdamConfig,
 }
 
-fn create_artifact_dir(artifact_dir: &str) {
-    // Remove existing artifacts before to get an accurate learner summary
-    std::fs::remove_dir_all(artifact_dir).ok();
-    std::fs::create_dir_all(artifact_dir).ok();
-}
-
-pub fn run<B: AutodiffBackend>(device: B::Device) {
-    create_artifact_dir(ARTIFACTS_DIR);
-
+pub fn run<B: AutodiffBackend>(device: B::Device, artifact_dir: &str) {
     // Config
     let optimizer_config = AdamConfig::new()
         .with_weight_decay(Some(WeightDecayConfig::new(5e-5)))
@@ -71,11 +61,11 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
         .build(DailyLinearDataset::valid());
 
     // Model
-    let learner = LearnerBuilder::new(ARTIFACTS_DIR)
+    let learner = LearnerBuilder::new(artifact_dir)
         .metric_train_numeric(LossMetric::new())
         .metric_valid_numeric(LossMetric::new())
-        .metric_train_numeric(CpuMemory::new())
-        .metric_valid_numeric(CpuMemory::new())
+        .metric_train_numeric(CpuUse::new())
+        .metric_valid_numeric(CpuUse::new())
         .with_file_checkpointer(CompactRecorder::new())
         .early_stopping(MetricEarlyStoppingStrategy::new::<LossMetric<B>>(
             Aggregate::Mean,
@@ -86,18 +76,15 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
         .devices(vec![device.clone()])
         .num_epochs(config.num_epochs)
         .summary()
-        .build(Model::<B>::new(&device), config.optimizer.init(), 5e-2);
+        .build(Model::<B>::new(&device), config.optimizer.init(), 4e-3);
 
     let model_trained = learner.fit(dataloader_train, dataloader_valid);
 
     config
-        .save(format!("{ARTIFACTS_DIR}/config.json").as_str())
+        .save(format!("{artifact_dir}/config.json").as_str())
         .expect("Failed to save config");
 
     model_trained
-        .save_file(
-            format!("{ARTIFACTS_DIR}/model_01"),
-            &NoStdTrainingRecorder::new(),
-        )
-        .expect("Failed to save model");
+        .save_file(format!("{artifact_dir}/model"), &CompactRecorder::new())
+        .expect("Trained model should be saved successfully");
 }
