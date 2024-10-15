@@ -25,7 +25,7 @@ pub struct DailyLinearTrainingConfig {
     #[config(default = 10)]
     pub num_epochs: usize,
 
-    #[config(default = 5000)]
+    #[config(default = 3000)]
     pub batch_size: usize,
 
     #[config(default = 4)]

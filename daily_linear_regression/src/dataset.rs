@@ -244,7 +244,6 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         // do not need to unsqueeze here, just concat for a 1D tensor
         // targets = Tensor([1.0, 0.0, 1.0, 1.0, 0.0])
         let targets = Tensor::cat(targets, 0);
-        let targets = self.min_max_norm(targets);
 
         DailyLinearBatch { inputs, targets }
     }
@@ -362,12 +361,13 @@ mod tests {
         let batcher: DailyLinearBatcher<MyBackend> = DailyLinearBatcher::new(device);
 
         let items: Vec<DailyLinearItem> = train.dataset.iter().take(200).collect();
-        let items = items[110..113].to_vec();
+        let items = items[110..115].to_vec();
+        dbg!(items[0].close_price, items[0].next_period_price);
 
-        // let batch = batcher.batch(items);
+        let batch: DailyLinearBatch<MyBackend> = batcher.batch(items);
 
         // dbg!(batch.inputs.shape());
-        // dbg!(batch.targets.shape());
+        dbg!(batch.targets.to_data().to_vec::<f32>().unwrap());
         assert!(false)
     }
 }
