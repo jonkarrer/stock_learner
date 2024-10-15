@@ -1,4 +1,4 @@
-CREATE TABLE daily_validation_set (
+CREATE TABLE daily_test_set (
  	row_id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_unix_timestamp INTEGER NOT NULL,
     next_period_price REAL NOT NULL,
@@ -54,7 +54,7 @@ CREATE TABLE daily_validation_set (
     distance_to_bottom_bollinger_band REAL NOT NULL
 );
 
-INSERT INTO daily_validation_set (
+INSERT INTO daily_test_set (
     event_unix_timestamp,
     next_period_price,
     open_price,
@@ -162,4 +162,4 @@ SELECT
     distance_to_middle_bollinger_band,
     distance_to_bottom_bollinger_band
 FROM daily_stock_bars
-WHERE event_unix_timestamp >= 1678010064000;
+WHERE event_unix_timestamp >= 1688910064000;

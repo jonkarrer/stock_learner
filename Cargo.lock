@@ -1021,6 +1021,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "daily_linear_regression"
+version = "0.1.0"
+dependencies = [
+ "burn",
+ "serde",
+]
+
+[[package]]
 name = "daily_lstm_classifier"
 version = "0.1.0"
 dependencies = [

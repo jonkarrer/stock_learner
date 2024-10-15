@@ -88,8 +88,8 @@ impl DailyLinearDataset {
 
     pub fn new(split_type: &str) -> Self {
         let split = match split_type {
-            "train" => "daily_linear_classifier_train",
-            "valid" => "daily_linear_classifier_validation",
+            "train" => "daily_training_set",
+            "valid" => "daily_validation_set",
             _ => panic!("Invalid split type"),
         };
 
@@ -131,49 +131,59 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let mut inputs: Vec<Tensor<B, 2>> = Vec::new();
 
         for item in items.iter() {
+            let rsi_signal = if item.fourteen_day_rsi > 70.0 {
+                1.0
+            } else {
+                2.0
+            };
+
+            let vwop = item.volume_weighted_price - item.close_price;
+
             let input_tensor = Tensor::<B, 1>::from_floats(
                 [
-                    item.open_price,
-                    item.close_price,
-                    item.high_price,
-                    item.low_price,
-                    item.volume,
-                    item.volume_weighted_price,
+                    // item.open_price,
+                    // item.close_price,
+                    // item.high_price,
+                    // item.low_price,
+                    // item.volume,
+                    // item.volume_weighted_price,
                     item.bar_trend as f32,
-                    item.hundred_day_sma,
-                    item.hundred_day_ema,
-                    item.fifty_day_sma,
-                    item.fifty_day_ema,
-                    item.twenty_day_sma,
-                    item.twenty_day_ema,
-                    item.nine_day_sma,
-                    item.nine_day_ema,
-                    item.hundred_day_high,
-                    item.hundred_day_low,
-                    item.fifty_day_high,
-                    item.fifty_day_low,
-                    item.ten_day_high,
-                    item.ten_day_low,
-                    item.fourteen_day_rsi,
-                    item.top_bollinger_band,
-                    item.middle_bollinger_band,
-                    item.bottom_bollinger_band,
-                    item.macd_signal,
+                    rsi_signal,
+                    vwop,
+                    // item.hundred_day_sma,
+                    // item.hundred_day_ema,
+                    // item.fifty_day_sma,
+                    // item.fifty_day_ema,
+                    // item.twenty_day_sma,
+                    // item.twenty_day_ema,
+                    // item.nine_day_sma,
+                    // item.nine_day_ema,
+                    // item.hundred_day_high,
+                    // item.hundred_day_low,
+                    // item.fifty_day_high,
+                    // item.fifty_day_low,
+                    // item.ten_day_high,
+                    // item.ten_day_low,
+                    // item.fourteen_day_rsi,
+                    // item.top_bollinger_band,
+                    // item.middle_bollinger_band,
+                    // item.bottom_bollinger_band,
+                    // item.macd_signal,
                     item.previous_period_trend as f32,
                     item.previous_five_day_trend as f32,
                     item.previous_ten_day_trend as f32,
-                    item.distance_to_hundred_day_sma,
-                    item.distance_to_hundred_day_ema,
-                    item.distance_to_fifty_day_sma,
-                    item.distance_to_fifty_day_ema,
-                    item.distance_to_twenty_day_sma,
-                    item.distance_to_twenty_day_ema,
-                    item.distance_to_nine_day_ema,
-                    item.distance_to_nine_day_sma,
-                    item.distance_to_hundred_day_high,
-                    item.distance_to_hundred_day_low,
-                    item.distance_to_fifty_day_high,
-                    item.distance_to_fifty_day_low,
+                    // item.distance_to_hundred_day_sma,
+                    // item.distance_to_hundred_day_ema,
+                    // item.distance_to_fifty_day_sma,
+                    // item.distance_to_fifty_day_ema,
+                    // item.distance_to_twenty_day_sma,
+                    // item.distance_to_twenty_day_ema,
+                    // item.distance_to_nine_day_ema,
+                    // item.distance_to_nine_day_sma,
+                    // item.distance_to_hundred_day_high,
+                    // item.distance_to_hundred_day_low,
+                    // item.distance_to_fifty_day_high,
+                    // item.distance_to_fifty_day_low,
                     item.distance_to_ten_day_high,
                     item.distance_to_ten_day_low,
                     item.distance_to_top_bollinger_band,
@@ -213,7 +223,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         // ]
         let targets = items
             .iter()
-            .map(|item| Tensor::<B, 1, Int>::from_ints([item.future_ten_day_trend], &self.device))
+            .map(|item| Tensor::<B, 1, Int>::from_ints([item.future_five_day_trend], &self.device))
             .collect();
 
         // do not need to unsqueeze here, just concat for a 1D tensor

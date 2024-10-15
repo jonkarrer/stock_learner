@@ -90,8 +90,8 @@ impl DailyLinearDataset {
 
     pub fn new(split_type: &str) -> Self {
         let split = match split_type {
-            "train" => "daily_linear_classifier_train",
-            "valid" => "daily_linear_classifier_validation",
+            "train" => "daily_training_set",
+            "valid" => "daily_validation_set",
             _ => panic!("Invalid split type"),
         };
 

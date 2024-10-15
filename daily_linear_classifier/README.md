@@ -1141,3 +1141,7 @@ Total Epochs: 3
 | Valid | Loss       | 0.692    | 1        | 0.693    | 2        |
 | Valid | Accuracy   | 51.507   | 2        | 52.210   | 1        |
 | Valid | CPU Usage  | 51.820   | 3        | 65.341   | 1        |
+
+## Training Round 4 Conclusion
+
+Gru seems powerful, but still got the .69 loss. I will need to concede that the data is not right yet. Will try to simplify the data next.

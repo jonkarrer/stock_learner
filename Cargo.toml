@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = [ "daily_gru_classifier", "daily_linear_classifier", "daily_lstm_classifier","trado"]
+members = [ "daily_gru_classifier", "daily_linear_classifier", "daily_linear_regression", "daily_lstm_classifier","trado"]
 
 [workspace.dependencies]
 serde = { version = "1.0.210", features = ["derive"] }

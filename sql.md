@@ -102,7 +102,7 @@ FROM daily_stock_bars;
 create tables
 
 ```sql
-CREATE TABLE daily_linear_classifier_train (
+CREATE TABLE daily_training_set (
   row_id INTEGER PRIMARY KEY AUTOINCREMENT,
     open_price REAL NOT NULL DEFAULT 0.0,
     close_price REAL NOT NULL DEFAULT 0.0,
@@ -138,7 +138,7 @@ CREATE TABLE daily_linear_classifier_train (
 Insert data
 
 ```sql
-INSERT INTO daily_linear_classifier_train (
+INSERT INTO daily_training_set (
  open_price,
  close_price,
  high_price,
