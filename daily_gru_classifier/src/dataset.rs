@@ -121,10 +121,14 @@ impl<B: Backend> DailyLinearBatcher<B> {
         Self { device }
     }
 
-    pub fn min_max_norm<const D: usize>(&self, inp: Tensor<B, D>) -> Tensor<B, D> {
+    pub fn min_max_norm_inputs(&self, inp: &Tensor<B, 3>) -> Tensor<B, 3> {
         let min = inp.clone().min_dim(0);
         let max = inp.clone().max_dim(0);
-        (inp.clone() - min.clone()).div(max - min)
+
+        let denominator = (max.clone() - min.clone()).clamp(1e-8, f32::MAX);
+        let normalized = (inp.clone() - min.clone()) / denominator;
+
+        normalized * 2.0 - 1.0
     }
 }
 
@@ -218,7 +222,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let inputs = Tensor::cat(inputs, 0);
 
         // normalize the inputs so that they fit between 0 and 1
-        let inputs = self.min_max_norm(inputs);
+        let inputs = self.min_max_norm_inputs(&inputs);
 
         // create target tenser
         // targets = [

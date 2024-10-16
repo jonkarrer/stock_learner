@@ -119,10 +119,14 @@ impl<B: Backend> DailyLinearBatcher<B> {
         Self { device }
     }
 
-    pub fn min_max_norm<const D: usize>(&self, inp: Tensor<B, D>) -> Tensor<B, D> {
+    pub fn min_max_norm_inputs(&self, inp: &Tensor<B, 2>) -> Tensor<B, 2> {
         let min = inp.clone().min_dim(0);
         let max = inp.clone().max_dim(0);
-        (inp.clone() - min.clone()).div(max - min)
+
+        let denominator = (max.clone() - min.clone()).clamp(1e-8, f32::MAX);
+        let normalized = (inp.clone() - min.clone()) / denominator;
+
+        normalized * 2.0 - 1.0
     }
 }
 
@@ -141,49 +145,49 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
 
             let input_tensor = Tensor::<B, 1>::from_floats(
                 [
-                    // item.open_price,
-                    // item.close_price,
-                    // item.high_price,
-                    // item.low_price,
+                    item.open_price,
+                    item.close_price,
+                    item.high_price,
+                    item.low_price,
                     // item.volume,
-                    // item.volume_weighted_price,
+                    item.volume_weighted_price,
                     item.bar_trend as f32,
                     rsi_signal,
                     vwop,
-                    // item.hundred_day_sma,
-                    // item.hundred_day_ema,
-                    // item.fifty_day_sma,
-                    // item.fifty_day_ema,
-                    // item.twenty_day_sma,
-                    // item.twenty_day_ema,
-                    // item.nine_day_sma,
-                    // item.nine_day_ema,
-                    // item.hundred_day_high,
-                    // item.hundred_day_low,
-                    // item.fifty_day_high,
-                    // item.fifty_day_low,
-                    // item.ten_day_high,
-                    // item.ten_day_low,
-                    // item.fourteen_day_rsi,
-                    // item.top_bollinger_band,
-                    // item.middle_bollinger_band,
-                    // item.bottom_bollinger_band,
-                    // item.macd_signal,
+                    item.hundred_day_sma,
+                    item.hundred_day_ema,
+                    item.fifty_day_sma,
+                    item.fifty_day_ema,
+                    item.twenty_day_sma,
+                    item.twenty_day_ema,
+                    item.nine_day_sma,
+                    item.nine_day_ema,
+                    item.hundred_day_high,
+                    item.hundred_day_low,
+                    item.fifty_day_high,
+                    item.fifty_day_low,
+                    item.ten_day_high,
+                    item.ten_day_low,
+                    item.fourteen_day_rsi,
+                    item.top_bollinger_band,
+                    item.middle_bollinger_band,
+                    item.bottom_bollinger_band,
+                    item.macd_signal,
                     item.previous_period_trend as f32,
                     item.previous_five_day_trend as f32,
                     item.previous_ten_day_trend as f32,
-                    // item.distance_to_hundred_day_sma,
-                    // item.distance_to_hundred_day_ema,
-                    // item.distance_to_fifty_day_sma,
-                    // item.distance_to_fifty_day_ema,
-                    // item.distance_to_twenty_day_sma,
-                    // item.distance_to_twenty_day_ema,
-                    // item.distance_to_nine_day_ema,
-                    // item.distance_to_nine_day_sma,
-                    // item.distance_to_hundred_day_high,
-                    // item.distance_to_hundred_day_low,
-                    // item.distance_to_fifty_day_high,
-                    // item.distance_to_fifty_day_low,
+                    item.distance_to_hundred_day_sma,
+                    item.distance_to_hundred_day_ema,
+                    item.distance_to_fifty_day_sma,
+                    item.distance_to_fifty_day_ema,
+                    item.distance_to_twenty_day_sma,
+                    item.distance_to_twenty_day_ema,
+                    item.distance_to_nine_day_ema,
+                    item.distance_to_nine_day_sma,
+                    item.distance_to_hundred_day_high,
+                    item.distance_to_hundred_day_low,
+                    item.distance_to_fifty_day_high,
+                    item.distance_to_fifty_day_low,
                     item.distance_to_ten_day_high,
                     item.distance_to_ten_day_low,
                     item.distance_to_top_bollinger_band,
@@ -211,7 +215,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let inputs = Tensor::cat(inputs, 0);
 
         // normalize the inputs so that they fit between 0 and 1
-        let inputs = self.min_max_norm(inputs);
+        let inputs = self.min_max_norm_inputs(&inputs);
 
         // create target tenser
         // targets = [

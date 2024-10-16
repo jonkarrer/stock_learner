@@ -33,12 +33,12 @@ pub fn infer<B: AutodiffBackend>(
 
     // Run inference on the given text samples
     println!("Running inference ...");
-    // for sample in samples.clone() {
-    //     dbg!(
-    //         &sample.event_unix_timestamp,
-    //         &sample.next_period_price - sample.close_price
-    //     );
-    // }
+    for sample in samples.clone() {
+        dbg!(
+            &sample.event_unix_timestamp,
+            &sample.next_period_price - sample.close_price
+        );
+    }
     let item: DailyLinearInferBatch<B> = batcher.batch(samples.clone()); // Batch samples using the batcher
 
     // dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
@@ -57,10 +57,14 @@ pub fn dry_run<B: AutodiffBackend>(device: B::Device, samples: Vec<DailyLinearIt
     // Run inference on the given text samples
     println!("Running inference ...");
     dbg!(&samples);
-    let item: DailyLinearInferBatch<B> = batcher.batch(samples.clone()); // Batch samples using the batcher
+    // let item: DailyLinearInferBatch<B> = batcher.batch(samples.clone()); // Batch samples using the batcher
+    let item: DailyLinearBatch<B> = batcher.batch(samples.clone());
 
-    dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
-    let predictions = model.infer(item); // Get model predictions
+    // dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
+    // dbg!(&item.targets.to_data().to_vec::<f32>().unwrap());
 
-    dbg!(predictions);
+    // dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
+    // let predictions = model.infer(item); // Get model predictions
+
+    // dbg!(predictions);
 }

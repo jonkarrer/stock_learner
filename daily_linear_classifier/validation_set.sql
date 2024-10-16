@@ -2,6 +2,7 @@ CREATE TABLE daily_validation_set (
  	row_id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_unix_timestamp INTEGER NOT NULL,
     next_period_price REAL NOT NULL,
+    next_period_price_diff REAL NOT NULL,
     open_price REAL NOT NULL DEFAULT 0.0,
     close_price REAL NOT NULL DEFAULT 0.0,
     high_price REAL NOT NULL DEFAULT 0.0,
@@ -57,6 +58,7 @@ CREATE TABLE daily_validation_set (
 INSERT INTO daily_validation_set (
     event_unix_timestamp,
     next_period_price,
+    next_period_price_diff,
     open_price,
     close_price,
     high_price,
@@ -111,6 +113,7 @@ INSERT INTO daily_validation_set (
 SELECT
     event_unix_timestamp,
     next_period_price,
+    next_period_price - close_price AS next_period_price_diff,
     open_price,
     close_price,
     high_price,
@@ -162,4 +165,4 @@ SELECT
     distance_to_middle_bollinger_band,
     distance_to_bottom_bollinger_band
 FROM daily_stock_bars
-WHERE event_unix_timestamp >= 1678010064000;
+WHERE event_unix_timestamp >= 1678910064000;

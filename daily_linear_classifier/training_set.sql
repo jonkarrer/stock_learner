@@ -2,6 +2,7 @@ CREATE TABLE daily_training_set (
  	row_id INTEGER PRIMARY KEY AUTOINCREMENT,
     event_unix_timestamp INTEGER NOT NULL,
     next_period_price REAL NOT NULL,
+    next_period_price_diff REAL NOT NULL,
     open_price REAL NOT NULL DEFAULT 0.0,
     close_price REAL NOT NULL DEFAULT 0.0,
     high_price REAL NOT NULL DEFAULT 0.0,
@@ -57,6 +58,7 @@ CREATE TABLE daily_training_set (
 INSERT INTO daily_training_set (
     event_unix_timestamp,
     next_period_price,
+    next_period_price_diff,
     open_price,
     close_price,
     high_price,
@@ -111,6 +113,7 @@ INSERT INTO daily_training_set (
 SELECT
     event_unix_timestamp,
     next_period_price,
+    next_period_price - close_price AS next_period_price_diff,
     open_price,
     close_price,
     high_price,

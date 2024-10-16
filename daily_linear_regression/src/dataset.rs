@@ -13,6 +13,7 @@ pub struct DailyLinearItem {
     pub row_id: i32,
     pub event_unix_timestamp: i64,
     pub next_period_price: f32,
+    pub next_period_price_diff: f32,
     pub open_price: f32,
     pub close_price: f32,
     pub high_price: f32,
@@ -142,6 +143,18 @@ impl<B: Backend> DailyLinearBatcher<B> {
         normalized * 2.0 - 1.0
     }
 
+    pub fn denorm_targets(
+        &self,
+        normalized: Tensor<B, 1>,
+        min: &Tensor<B, 1>,
+        max: &Tensor<B, 1>,
+    ) -> Tensor<B, 1> {
+        let de_scaled_norm = normalized / 2.0 + 1.0;
+        let denominator = (max.clone() - min.clone()).clamp(1e-8, f32::MAX);
+
+        de_scaled_norm * denominator
+    }
+
     pub fn min_max_norm_inputs(&self, inp: &Tensor<B, 2>) -> Tensor<B, 2> {
         let min = inp.clone().min_dim(0);
         let max = inp.clone().max_dim(0);
@@ -149,8 +162,7 @@ impl<B: Backend> DailyLinearBatcher<B> {
         let denominator = (max.clone() - min.clone()).clamp(1e-8, f32::MAX);
         let normalized = (inp.clone() - min.clone()) / denominator;
 
-        // Scale to [-1, 1] range
-        normalized * 2.0 - 1.0
+        normalized
     }
 }
 
@@ -173,7 +185,6 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
                     item.close_price,
                     item.high_price,
                     item.low_price,
-                    // item.volume,
                     item.volume_weighted_price,
                     item.bar_trend as f32,
                     rsi_signal,
@@ -239,7 +250,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let inputs = Tensor::cat(inputs, 0);
 
         // normalize the inputs so that they fit between 0 and 1
-        // let inputs = self.min_max_norm(inputs);
+        // let inputs = self.min_max_norm_inputs(&inputs);
 
         // create target tenser
         // targets = [
@@ -251,16 +262,13 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         // ]
         let targets = items
             .iter()
-            .map(|item| {
-                let target = item.next_period_price - item.close_price;
-                Tensor::<B, 1>::from_floats([target], &self.device)
-            })
+            .map(|item| Tensor::<B, 1>::from_floats([item.next_period_price], &self.device))
             .collect();
 
         // do not need to unsqueeze here, just concat for a 1D tensor
         // targets = Tensor([1.0, 0.0, 1.0, 1.0, 0.0])
         let targets = Tensor::cat(targets, 0);
-        let targets = self.min_max_norm_targets(&targets);
+        // let targets = self.min_max_norm_targets(&targets);
 
         DailyLinearBatch { inputs, targets }
     }
@@ -351,7 +359,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearInferBatch<B>> for DailyLin
         let inputs = Tensor::cat(inputs, 0);
 
         // normalize the inputs so that they fit between 0 and 1
-        let inputs = self.min_max_norm_inputs(&inputs);
+        // let inputs = self.min_max_norm_inputs(&inputs);
 
         DailyLinearInferBatch { inputs }
     }

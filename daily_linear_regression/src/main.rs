@@ -26,21 +26,21 @@ mod wgpu {
     pub fn inference(model_path: &str) {
         let device = WgpuDevice::default();
         let data = DailyLinearDataset::test();
-        let samples: Vec<DailyLinearItem> = data.iter().take(100).collect();
+        let samples: Vec<DailyLinearItem> = data.iter().take(5).collect();
         inference::infer::<Autodiff<Wgpu>>(device, samples, model_path);
     }
 
     pub fn dry_run() {
         let device = WgpuDevice::default();
         let data = DailyLinearDataset::test();
-        let samples: Vec<DailyLinearItem> = data.iter().take(30).collect();
+        let samples: Vec<DailyLinearItem> = data.iter().take(5).collect();
         inference::dry_run::<Autodiff<Wgpu>>(device, samples);
     }
 }
 
 const MODEL_PATH: &str = "/tmp/burn/daily_linear_regression";
 fn main() {
-    wgpu::dry_run();
+    // wgpu::dry_run();
     // wgpu::train(MODEL_PATH);
-    // wgpu::inference(MODEL_PATH);
+    wgpu::inference(MODEL_PATH);
 }
