@@ -33,6 +33,12 @@ pub fn infer<B: AutodiffBackend>(
 
     // Run inference on the given text samples
     println!("Running inference ...");
+    // for sample in samples.clone() {
+    //     dbg!(
+    //         &sample.event_unix_timestamp,
+    //         &sample.next_period_price - sample.close_price
+    //     );
+    // }
     let item: DailyLinearInferBatch<B> = batcher.batch(samples.clone()); // Batch samples using the batcher
 
     // dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
