@@ -3,7 +3,7 @@ use burn::{
     data::dataloader::DataLoaderBuilder,
     grad_clipping::GradientClippingConfig,
     module::Module,
-    optim::{decay::WeightDecayConfig, AdamConfig},
+    optim::{decay::WeightDecayConfig, AdamConfig, SgdConfig},
     record::{CompactRecorder, NoStdTrainingRecorder},
     tensor::backend::AutodiffBackend,
     train::{
@@ -22,10 +22,10 @@ use crate::{
 
 #[derive(Config)]
 pub struct DailyLinearTrainingConfig {
-    #[config(default = 10)]
+    #[config(default = 5)]
     pub num_epochs: usize,
 
-    #[config(default = 3000)]
+    #[config(default = 5000)]
     pub batch_size: usize,
 
     #[config(default = 4)]
@@ -39,9 +39,8 @@ pub struct DailyLinearTrainingConfig {
 
 pub fn run<B: AutodiffBackend>(device: B::Device, artifact_dir: &str) {
     // Config
-    let optimizer_config = AdamConfig::new()
-        .with_weight_decay(Some(WeightDecayConfig::new(5e-5)))
-        .with_grad_clipping(Some(GradientClippingConfig::Norm(1.0)));
+    let optimizer_config = AdamConfig::new().with_weight_decay(Some(WeightDecayConfig::new(5e-5)));
+    // .with_grad_clipping(Some(GradientClippingConfig::Norm(1.0)));
     let config = DailyLinearTrainingConfig::new(optimizer_config);
     B::seed(config.seed);
 
@@ -71,12 +70,12 @@ pub fn run<B: AutodiffBackend>(device: B::Device, artifact_dir: &str) {
             Aggregate::Mean,
             Direction::Lowest,
             Split::Valid,
-            StoppingCondition::NoImprovementSince { n_epochs: 2 },
+            StoppingCondition::NoImprovementSince { n_epochs: 3 },
         ))
         .devices(vec![device.clone()])
         .num_epochs(config.num_epochs)
         .summary()
-        .build(Model::<B>::new(&device), config.optimizer.init(), 4e-3);
+        .build(Model::<B>::new(&device), config.optimizer.init(), 4e-4);
 
     let model_trained = learner.fit(dataloader_train, dataloader_valid);
 
@@ -87,4 +86,6 @@ pub fn run<B: AutodiffBackend>(device: B::Device, artifact_dir: &str) {
     model_trained
         .save_file(format!("{artifact_dir}/model"), &CompactRecorder::new())
         .expect("Trained model should be saved successfully");
+
+    println!("Model Saved");
 }

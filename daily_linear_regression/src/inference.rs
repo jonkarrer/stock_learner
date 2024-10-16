@@ -8,7 +8,7 @@ use burn::{
 };
 
 use crate::{
-    dataset::{DailyLinearBatcher, DailyLinearItem},
+    dataset::{DailyLinearBatch, DailyLinearBatcher, DailyLinearInferBatch, DailyLinearItem},
     model::Model,
 };
 
@@ -33,7 +33,27 @@ pub fn infer<B: AutodiffBackend>(
 
     // Run inference on the given text samples
     println!("Running inference ...");
-    let item = batcher.batch(samples.clone()); // Batch samples using the batcher
+    let item: DailyLinearInferBatch<B> = batcher.batch(samples.clone()); // Batch samples using the batcher
+
+    // dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
+    let predictions = model.infer(item); // Get model predictions
+
+    dbg!(predictions);
+}
+
+pub fn dry_run<B: AutodiffBackend>(device: B::Device, samples: Vec<DailyLinearItem>) {
+    // Data
+    let batcher = DailyLinearBatcher::<B>::new(device.clone());
+    // Create model using loaded weights
+    println!("Creating model ...");
+    let model = Model::<B>::new(&device);
+
+    // Run inference on the given text samples
+    println!("Running inference ...");
+    dbg!(&samples);
+    let item: DailyLinearInferBatch<B> = batcher.batch(samples.clone()); // Batch samples using the batcher
+
+    dbg!(&item.inputs.to_data().to_vec::<f32>().unwrap());
     let predictions = model.infer(item); // Get model predictions
 
     dbg!(predictions);

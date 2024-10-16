@@ -1,6 +1,9 @@
 use burn::{
     module::Module,
-    nn::{loss::MseLoss, Dropout, DropoutConfig, Linear, LinearConfig, Relu},
+    nn::{
+        loss::MseLoss, Dropout, DropoutConfig, LayerNorm, LayerNormConfig, Linear, LinearConfig,
+        Relu,
+    },
     prelude::Backend,
     tensor::{backend::AutodiffBackend, DataError, Tensor},
     train::{RegressionOutput, TrainOutput, TrainStep, ValidStep},
@@ -8,26 +11,27 @@ use burn::{
 
 use crate::dataset::{DailyLinearBatch, DailyLinearInferBatch};
 
-const INPUT_SIZE: usize = 48;
+const INPUT_SIZE: usize = 47;
 const HIDDEN_SIZES: [usize; 6] = [64, 128, 256, 512, 1024, 2048];
 const OUTPUT_SIZE: usize = 1;
 
 #[derive(Module, Debug)]
 pub struct Model<B: Backend> {
     input_layer: Linear<B>,
-    // ln1: Linear<B>,
-    // ln2: Linear<B>,
-    // ln3: Linear<B>,
-    // ln4: Linear<B>,
-    // ln5: Linear<B>,
-    // ln6: Linear<B>,
-    // ln7: Linear<B>,
-    // ln8: Linear<B>,
-    // ln9: Linear<B>,
-    // ln10: Linear<B>,
+    ln1: Linear<B>,
+    ln2: Linear<B>,
+    ln3: Linear<B>,
+    ln4: Linear<B>,
+    ln5: Linear<B>,
+    ln6: Linear<B>,
+    ln7: Linear<B>,
+    ln8: Linear<B>,
+    ln9: Linear<B>,
+    ln10: Linear<B>,
     output_layer: Linear<B>,
     dropout: Dropout,
     activation: Relu,
+    layer_norm: LayerNorm<B>,
 }
 
 impl<B: Backend> Default for Model<B> {
@@ -49,54 +53,69 @@ impl<B: Backend> Model<B> {
             .with_bias(true)
             .init(device);
 
-        // let ln1 = LinearConfig::new(h1, h1).with_bias(true).init(device);
+        let ln1 = LinearConfig::new(h1, h1).with_bias(true).init(device);
 
-        // let ln2 = LinearConfig::new(h1, h2).with_bias(true).init(device);
+        let ln2 = LinearConfig::new(h1, h2).with_bias(true).init(device);
 
-        // let ln3 = LinearConfig::new(h2, h2).with_bias(true).init(device);
+        let ln3 = LinearConfig::new(h2, h2).with_bias(true).init(device);
 
-        // let ln4 = LinearConfig::new(h2, h3).with_bias(true).init(device);
+        let ln4 = LinearConfig::new(h2, h3).with_bias(true).init(device);
 
-        // let ln5 = LinearConfig::new(h3, h3).with_bias(true).init(device);
+        let ln5 = LinearConfig::new(h3, h3).with_bias(true).init(device);
 
-        // let ln6 = LinearConfig::new(h3, h4).with_bias(true).init(device);
+        let ln6 = LinearConfig::new(h3, h4).with_bias(true).init(device);
 
-        // let ln7 = LinearConfig::new(h4, h4).with_bias(true).init(device);
+        let ln7 = LinearConfig::new(h4, h4).with_bias(true).init(device);
 
-        // let ln8 = LinearConfig::new(h4, h5).with_bias(true).init(device);
+        let ln8 = LinearConfig::new(h4, h5).with_bias(true).init(device);
 
-        // let ln9 = LinearConfig::new(h5, h5).with_bias(true).init(device);
+        let ln9 = LinearConfig::new(h5, h5).with_bias(true).init(device);
 
-        // let ln10 = LinearConfig::new(h5, h6).with_bias(true).init(device);
+        let ln10 = LinearConfig::new(h5, h6).with_bias(true).init(device);
 
-        let output_layer = LinearConfig::new(h1, OUTPUT_SIZE)
+        let output_layer = LinearConfig::new(h2, OUTPUT_SIZE)
             .with_bias(true)
             .init(device);
 
-        let dropout = DropoutConfig::new(0.5).init();
+        let dropout = DropoutConfig::new(0.33).init();
         let activation = Relu::new();
+        let layer_norm = LayerNormConfig::new(h1).init(device);
 
         Self {
             input_layer,
-            // ln1,
-            // ln2,
-            // ln3,
-            // ln4,
-            // ln5,
-            // ln6,
-            // ln7,
-            // ln8,
-            // ln9,
-            // ln10,
+            ln1,
+            ln2,
+            ln3,
+            ln4,
+            ln5,
+            ln6,
+            ln7,
+            ln8,
+            ln9,
+            ln10,
             output_layer,
             dropout,
             activation,
+            layer_norm,
         }
     }
 
     pub fn forward(&self, input: Tensor<B, 2>) -> Tensor<B, 2> {
         let x = input.detach();
         let x = self.input_layer.forward(x);
+        let x = self.activation.forward(x);
+        let x = self.dropout.forward(x);
+
+        let x = self.ln1.forward(x);
+        let x = self.activation.forward(x);
+        let x = self.dropout.forward(x);
+
+        let x = self.ln2.forward(x);
+        let x = self.activation.forward(x);
+        let x = self.activation.forward(x);
+        let x = self.dropout.forward(x);
+
+        let x = self.ln3.forward(x);
         let x = self.activation.forward(x);
         let x = self.dropout.forward(x);
 
