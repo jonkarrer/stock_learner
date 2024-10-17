@@ -2,13 +2,13 @@ use burn::{
     module::Module,
     nn::{loss::CrossEntropyLossConfig, Dropout, DropoutConfig, Linear, LinearConfig, Relu},
     prelude::Backend,
-    tensor::{backend::AutodiffBackend, Tensor},
+    tensor::{backend::AutodiffBackend, DataError, Tensor, TensorData},
     train::{ClassificationOutput, TrainOutput, TrainStep, ValidStep},
 };
 
-use crate::dataset::DailyLinearBatch;
+use crate::dataset::{DailyLinearBatch, DailyLinearInferBatch};
 
-const INPUT_SIZE: usize = 47;
+const INPUT_SIZE: usize = 23;
 const HIDDEN_SIZES: [usize; 6] = [64, 128, 256, 512, 1024, 2048];
 const OUTPUT_SIZE: usize = 2;
 
@@ -98,6 +98,11 @@ impl<B: Backend> Model<B> {
             output,
             targets,
         }
+    }
+
+    pub fn infer(&self, item: DailyLinearInferBatch<B>) -> Tensor<B, 2> {
+        let output = self.forward(item.inputs);
+        output
     }
 }
 

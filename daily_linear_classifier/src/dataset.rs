@@ -11,6 +11,9 @@ use serde::{Deserialize, Serialize};
 #[derive(Clone, Debug, Deserialize, Serialize)]
 pub struct DailyLinearItem {
     pub row_id: i32,
+    pub event_unix_timestamp: i64,
+    pub next_period_price: f32,
+    pub next_period_price_diff: f32,
     pub open_price: f32,
     pub close_price: f32,
     pub high_price: f32,
@@ -114,6 +117,11 @@ pub struct DailyLinearBatch<B: Backend> {
     pub targets: Tensor<B, 1, Int>,
 }
 
+#[derive(Clone, Debug)]
+pub struct DailyLinearInferBatch<B: Backend> {
+    pub inputs: Tensor<B, 2>,
+}
+
 impl<B: Backend> DailyLinearBatcher<B> {
     pub fn new(device: B::Device) -> Self {
         Self { device }
@@ -134,65 +142,147 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
     fn batch(&self, items: Vec<DailyLinearItem>) -> DailyLinearBatch<B> {
         let mut inputs: Vec<Tensor<B, 2>> = Vec::new();
 
+        let buy = 1.0;
+        let sell = 0.0;
+
         for item in items.iter() {
+            let range = item.close_price * 0.01; // tolerance threshold
             let rsi_signal = if item.fourteen_day_rsi > 70.0 {
-                1.0
+                sell
             } else {
-                2.0
+                buy
             };
 
-            let vwop = item.volume_weighted_price - item.close_price;
+            let dist_to_vwop = item.close_price - item.volume_weighted_price;
+            let vwop_signal = if dist_to_vwop < 0.0 { sell } else { buy };
+
+            let dst_01 = if item.distance_to_hundred_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_02 = if item.distance_to_hundred_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_03 = if item.distance_to_fifty_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_04 = if item.distance_to_fifty_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_05 = if item.distance_to_twenty_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_06 = if item.distance_to_twenty_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_07 = if item.distance_to_nine_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_08 = if item.distance_to_nine_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_09 = if item.distance_to_hundred_day_high > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_10 = if item.distance_to_hundred_day_low < 0.0 {
+                buy
+            } else {
+                sell
+            };
+
+            let dst_11 = if item.distance_to_fifty_day_high > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_12 = if item.distance_to_fifty_day_low < 0.0 {
+                buy
+            } else {
+                sell
+            };
+
+            let dst_13 = if item.distance_to_ten_day_high > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_14 = if item.distance_to_ten_day_low < 0.0 {
+                buy
+            } else {
+                sell
+            };
+
+            let dst_15 = if item.distance_to_top_bollinger_band > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_16 = if item.distance_to_middle_bollinger_band > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_17 = if item.distance_to_bottom_bollinger_band < 0.0 {
+                sell
+            } else {
+                buy
+            };
 
             let input_tensor = Tensor::<B, 1>::from_floats(
                 [
-                    item.open_price,
-                    item.close_price,
-                    item.high_price,
-                    item.low_price,
-                    // item.volume,
-                    item.volume_weighted_price,
-                    item.bar_trend as f32,
                     rsi_signal,
-                    vwop,
-                    item.hundred_day_sma,
-                    item.hundred_day_ema,
-                    item.fifty_day_sma,
-                    item.fifty_day_ema,
-                    item.twenty_day_sma,
-                    item.twenty_day_ema,
-                    item.nine_day_sma,
-                    item.nine_day_ema,
-                    item.hundred_day_high,
-                    item.hundred_day_low,
-                    item.fifty_day_high,
-                    item.fifty_day_low,
-                    item.ten_day_high,
-                    item.ten_day_low,
-                    item.fourteen_day_rsi,
-                    item.top_bollinger_band,
-                    item.middle_bollinger_band,
-                    item.bottom_bollinger_band,
-                    item.macd_signal,
+                    vwop_signal,
+                    item.bar_trend as f32,
                     item.previous_period_trend as f32,
                     item.previous_five_day_trend as f32,
                     item.previous_ten_day_trend as f32,
-                    item.distance_to_hundred_day_sma,
-                    item.distance_to_hundred_day_ema,
-                    item.distance_to_fifty_day_sma,
-                    item.distance_to_fifty_day_ema,
-                    item.distance_to_twenty_day_sma,
-                    item.distance_to_twenty_day_ema,
-                    item.distance_to_nine_day_ema,
-                    item.distance_to_nine_day_sma,
-                    item.distance_to_hundred_day_high,
-                    item.distance_to_hundred_day_low,
-                    item.distance_to_fifty_day_high,
-                    item.distance_to_fifty_day_low,
-                    item.distance_to_ten_day_high,
-                    item.distance_to_ten_day_low,
-                    item.distance_to_top_bollinger_band,
-                    item.distance_to_middle_bollinger_band,
-                    item.distance_to_bottom_bollinger_band,
+                    dst_01,
+                    dst_02,
+                    dst_03,
+                    dst_04,
+                    dst_05,
+                    dst_06,
+                    dst_07,
+                    dst_08,
+                    dst_09,
+                    dst_10,
+                    dst_11,
+                    dst_12,
+                    dst_13,
+                    dst_14,
+                    dst_15,
+                    dst_16,
+                    dst_17,
                 ],
                 &self.device,
             );
@@ -215,7 +305,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let inputs = Tensor::cat(inputs, 0);
 
         // normalize the inputs so that they fit between 0 and 1
-        let inputs = self.min_max_norm_inputs(&inputs);
+        // let inputs = self.min_max_norm_inputs(&inputs);
 
         // create target tenser
         // targets = [
@@ -227,7 +317,7 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         // ]
         let targets = items
             .iter()
-            .map(|item| Tensor::<B, 1, Int>::from_ints([item.future_five_day_trend], &self.device))
+            .map(|item| Tensor::<B, 1, Int>::from_ints([item.future_ten_day_trend], &self.device))
             .collect();
 
         // do not need to unsqueeze here, just concat for a 1D tensor
@@ -235,6 +325,179 @@ impl<B: Backend> Batcher<DailyLinearItem, DailyLinearBatch<B>> for DailyLinearBa
         let targets = Tensor::cat(targets, 0);
 
         DailyLinearBatch { inputs, targets }
+    }
+}
+
+impl<B: Backend> Batcher<DailyLinearItem, DailyLinearInferBatch<B>> for DailyLinearBatcher<B> {
+    fn batch(&self, items: Vec<DailyLinearItem>) -> DailyLinearInferBatch<B> {
+        let mut inputs: Vec<Tensor<B, 2>> = Vec::new();
+
+        let buy = 1.0;
+        let sell = 0.0;
+
+        for item in items.iter() {
+            let range = item.close_price * 0.01; // tolerance threshold
+            let rsi_signal = if item.fourteen_day_rsi > 70.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dist_to_vwop = item.close_price - item.volume_weighted_price;
+            let vwop_signal = if dist_to_vwop < 0.0 { sell } else { buy };
+
+            let dst_01 = if item.distance_to_hundred_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_02 = if item.distance_to_hundred_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_03 = if item.distance_to_fifty_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_04 = if item.distance_to_fifty_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_05 = if item.distance_to_twenty_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_06 = if item.distance_to_twenty_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_07 = if item.distance_to_nine_day_ema > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_08 = if item.distance_to_nine_day_sma > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_09 = if item.distance_to_hundred_day_high > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_10 = if item.distance_to_hundred_day_low < 0.0 {
+                buy
+            } else {
+                sell
+            };
+
+            let dst_11 = if item.distance_to_fifty_day_high > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_12 = if item.distance_to_fifty_day_low < 0.0 {
+                buy
+            } else {
+                sell
+            };
+
+            let dst_13 = if item.distance_to_ten_day_high > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_14 = if item.distance_to_ten_day_low < 0.0 {
+                buy
+            } else {
+                sell
+            };
+
+            let dst_15 = if item.distance_to_top_bollinger_band > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_16 = if item.distance_to_middle_bollinger_band > 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let dst_17 = if item.distance_to_bottom_bollinger_band < 0.0 {
+                sell
+            } else {
+                buy
+            };
+
+            let input_tensor = Tensor::<B, 1>::from_floats(
+                [
+                    rsi_signal,
+                    vwop_signal,
+                    item.bar_trend as f32,
+                    item.previous_period_trend as f32,
+                    item.previous_five_day_trend as f32,
+                    item.previous_ten_day_trend as f32,
+                    dst_01,
+                    dst_02,
+                    dst_03,
+                    dst_04,
+                    dst_05,
+                    dst_06,
+                    dst_07,
+                    dst_08,
+                    dst_09,
+                    dst_10,
+                    dst_11,
+                    dst_12,
+                    dst_13,
+                    dst_14,
+                    dst_15,
+                    dst_16,
+                    dst_17,
+                ],
+                &self.device,
+            );
+
+            // make the tensor 2D for easy concat later
+            // inputs = [
+            //     Tensor([[10.5, 100.0, 50.2]]),
+            //     Tensor([[20.1, 95.5, 60.0]]),
+            //     Tensor([[15.3, 105.2, 55.7]]),
+            // ];
+            inputs.push(input_tensor.unsqueeze());
+        }
+
+        // concat the tensors, now the shape is (batch_size, feature length)
+        // inputs = Tensor([
+        //     [10.5, 100.0, 50.2],
+        //     [20.1, 95.5, 60.0],
+        //     [15.3, 105.2, 55.7]
+        // ])
+        let inputs = Tensor::cat(inputs, 0);
+
+        // normalize the inputs so that they fit between 0 and 1
+        // let inputs = self.min_max_norm_inputs(&inputs);
+
+        DailyLinearInferBatch { inputs }
     }
 }
 
@@ -261,9 +524,9 @@ mod tests {
         let items: Vec<DailyLinearItem> = train.dataset.iter().take(200).collect();
         let items = items[110..113].to_vec();
 
-        let batch = batcher.batch(items);
+        // let batch = batcher.batch(items);
 
-        dbg!(batch.inputs);
-        assert!(false)
+        // dbg!(batch.inputs);
+        // assert!(false)
     }
 }

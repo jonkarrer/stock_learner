@@ -166,3 +166,22 @@ SELECT
     distance_to_bottom_bollinger_band
 FROM daily_stock_bars
 WHERE event_unix_timestamp >= 1688910064000;
+
+-- UPDATE daily_stock_bars
+-- SET distance_to_hundred_day_sma = close_price - hundred_day_sma;
+-- SET distance_to_hundred_day_ema = close_price - hundred_day_ema;
+-- SET distance_to_fifty_day_sma = close_price - fifty_day_sma;
+-- SET distance_to_fifty_day_ema = close_price - fifty_day_ema;
+-- SET distance_to_twenty_day_sma = close_price - twenty_day_sma;
+-- SET distance_to_twenty_day_ema = close_price - twenty_day_ema;
+-- SET distance_to_nine_day_ema = close_price - nine_day_ema;
+-- SET distance_to_nine_day_sma = close_price - nine_day_sma;
+-- SET distance_to_hundred_day_high = close_price - hundred_day_high;
+-- SET distance_to_hundred_day_low = close_price - hundred_day_low;
+-- SET distance_to_fifty_day_high = close_price - fifty_day_high;
+-- SET distance_to_fifty_day_low = close_price - fifty_day_low;
+-- SET distance_to_ten_day_high = close_price - ten_day_high;
+-- SET distance_to_ten_day_low = close_price - ten_day_low;
+-- SET distance_to_top_bollinger_band = close_price - top_bollinger_band;
+-- SET distance_to_middle_bollinger_band = close_price - middle_bollinger_band;
+-- SET distance_to_bottom_bollinger_band = close_price - bottom_bollinger_band;

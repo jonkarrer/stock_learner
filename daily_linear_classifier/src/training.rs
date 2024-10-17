@@ -39,15 +39,7 @@ pub struct DailyLinearTrainingConfig {
     pub optimizer: AdamConfig,
 }
 
-fn create_artifact_dir(artifact_dir: &str) {
-    // Remove existing artifacts before to get an accurate learner summary
-    std::fs::remove_dir_all(artifact_dir).ok();
-    std::fs::create_dir_all(artifact_dir).ok();
-}
-
-pub fn run<B: AutodiffBackend>(device: B::Device) {
-    create_artifact_dir(ARTIFACTS_DIR);
-
+pub fn run<B: AutodiffBackend>(device: B::Device, artifact_dir: &str) {
     // Config
     let optimizer_config = AdamConfig::new()
         .with_weight_decay(Some(WeightDecayConfig::new(5e-5)))
@@ -95,12 +87,12 @@ pub fn run<B: AutodiffBackend>(device: B::Device) {
     let model_trained = learner.fit(dataloader_train, dataloader_valid);
 
     config
-        .save(format!("{ARTIFACTS_DIR}/config.json").as_str())
+        .save(format!("{artifact_dir}/config.json").as_str())
         .expect("Failed to save config");
 
     model_trained
         .save_file(
-            format!("{ARTIFACTS_DIR}/model_01"),
+            format!("{artifact_dir}/model_01"),
             &NoStdTrainingRecorder::new(),
         )
         .expect("Failed to save model");
